@@ -1,0 +1,11 @@
+-- TankStation
+fs.copy("/disk/egps", "egps")
+fs.copy("/disk/turtleLogic", "startup")
+if(turtle.getFuelLevel() == 0) then
+	print("Out of fuel...")
+	while(turtle.getFuelLevel() == 0) do
+		turtle.refuel()
+	end
+end
+turtle.forward()
+os.reboot()

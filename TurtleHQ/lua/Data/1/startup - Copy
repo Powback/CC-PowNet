@@ -1,0 +1,262 @@
+-- TankStation
+rednet.open("right")
+local m_Pos = nil
+local m_Heading = 3
+local m_MovingTo = nil
+local m_NewRoute = nil
+m_Map = {}
+
+local g_Headings = {
+	"north",
+	"east",
+	"south",
+	"west"
+}
+
+function Init(  )
+
+end
+function RotateTowards( p_Heading )
+	while(m_Heading ~= p_Heading) do
+		turtle.turnRight()
+		m_Heading = m_Heading + 1
+		if(m_Heading == 5) then
+			m_Heading = 1
+		end
+	end
+	sleep(1)
+	print("Done rotating")
+end
+
+function OnMoveTo( p_Command )
+	m_MovingTo = p_Command.pos
+	if(turtle.getFuelLevel() == 0) then
+		print("Out of fuel...")
+		while(turtle.getFuelLevel() == 0) do
+			turtle.refuel()
+		end
+	end
+	for _, v in pairs(p_Command.path) do
+		if(v == "up") then
+			if(Move("up") == false) then
+				return false
+			end
+		elseif(v == "down") then
+			if(Move("down") == false) then
+				return false
+			end
+		else
+			RotateTowards(v)
+			if(Move("forward") == false) then
+				return false
+			end
+		end
+	end
+	print("Done moving")
+	return true
+end
+function GetCoords(x,y,z)
+	if m_Map[x] == nil then
+		m_Map[x] = {}
+	end
+	if m_Map[x][y] == nil then
+		m_Map[x][y] = {}
+	end
+	if m_Map[x][y][z] == nil then
+		m_Map[x][y][z] = {}
+	end
+	return m_Map[x][y][z]
+end
+
+function IsCoordsFree( x,y,z )
+	if m_Map[x] == nil then
+		return true
+	end
+	if m_Map[x][y] == nil then
+		return true
+	end
+	if m_Map[x][y][z] == nil then
+		return true
+	else
+		return false
+	end
+end
+function AdjustRoute( )
+	m_NewRoute = GetPath(m_Pos, m_MovingTo)
+end
+function GetPath( from, to )
+	local diffX = math.abs(from.x - to.x)
+	local diffy = math.abs(from.y - to.y)
+	local diffz = math.abs(from.z - to.z)
+
+	local x = from.x
+	local y = from.y
+	local z = from.z
+	local s_Path = {}
+
+	while(x ~= to.x) do
+		print(x)
+
+		while(z ~= to.z) do
+			print(y)
+
+			while(y ~= to.y) do
+				print(x)
+
+				if( y < to.y and IsCoordsFree(x,(y + 1), z)) then
+					table.insert(s_Path, "up")
+					y = y + 1
+				elseif (IsCoordsFree(x,(y - 1), z)) then
+					table.insert(s_Path, "down")
+					y = y - 1
+				end
+			end
+
+			if(z < to.z and IsCoordsFree(x, y, (z + 1))) then
+				table.insert(s_Path, 3)
+				z = z + 1
+			elseif (IsCoordsFree(x, y, (z - 1))) then
+				table.insert(s_Path, 1)
+				z = z - 1
+			end
+
+		end
+
+		if (x < to.x and IsCoordsFree((x + 1), y, z)) then
+			table.insert(s_Path, 2)
+			x = x + 1
+		elseif (IsCoordsFree((x - 1), y, z))then
+			x = x - 1
+			table.insert(s_Path, 4)
+		end
+
+	end
+	return s_Path
+end
+
+function CoordBlocked( pos )
+	GetCoords(pos.x, pos.y, pos.z)
+end
+
+function Move( dir )
+	local s_NewPos = m_Pos
+	if(dir == "forward") then
+		if(m_Heading == 1) then
+			s_NewPos.z = m_Pos.z - 1
+		elseif(m_Heading == 2) then
+			s_NewPos.x = m_Pos.x + 1
+		elseif(m_Heading == 3) then
+			s_NewPos.z = m_Pos.z + 1
+		elseif(m_Heading == 4) then
+			s_NewPos.x = m_Pos.x - 1
+		end
+	elseif(dir == "up") then
+		s_NewPos.z = s_NewPos.z + 1
+	elseif(dir == "down") then
+		s_NewPos.z = s_NewPos.z - 1
+	end
+
+	local s_Success, s_Message = turtle[dir]()
+	if(s_Success) then
+		m_Map[m_Pos.x][m_Pos.y][m_Pos.z] = nil
+		m_Pos = s_NewPos
+		return true
+	else
+		print(s_Message)
+		if(s_Message == "Movement obstructed") then
+			print("Calculating alternative route")
+			CoordBlocked(s_NewPos)
+			AdjustRoute()
+			return false
+		end
+		return false
+	end
+end
+
+function GetPos () 
+	print("Man I am so lost right now!")
+	local x, y, z = gps.locate(5)
+	if not x then --If gps.locate didn't work, it won't return anything. So check to see if it did.
+		print("Failed to get my location!")
+		return nil
+	else
+		print("I am at (" .. x .. ", " .. y .. ", " .. z .. ")") --This prints 'I am at (1, 2, 3)' or whatever your coordinates are
+		GetCoords(x,y,z)
+		return {x = x, y = y, z = z}
+	end
+	return nil
+end
+
+function Register()
+	local s_Command = {
+		name = "RegisterWorker",
+		realm = "Client",
+		pos = m_Pos,
+		heading = "S"
+	}
+	rednet.broadcast(textutils.serialize( s_Command ))
+	print("Requested Registration")
+end
+
+function ParseCommand( p_Command )
+	local s_Command = textutils.unserialize( tostring(p_Command) )
+	if(s_Command == nil) then
+		print("Could not deserialize command?")
+		return
+	end
+	local s_CommandName = s_Command.name
+	if(s_CommandName == nil) then
+		print("nil command")
+		return
+	end
+	return s_Command
+end
+
+
+local m_Commands = {
+	MoveTo = OnMoveTo,
+}
+
+function OnRecieveCommand(p_Command )
+	local s_CommandFunction = m_Commands[p_Command.name]
+	if (s_CommandFunction == nil) then
+		print("No command with that name found")
+		return
+	end
+	print("Executing Command: " .. p_Command.name)
+	local s_Result = s_CommandFunction(p_Command)
+	if(s_Result == false and p_Command.name == "MoveTo" and m_NewRoute ~= nil ) then
+		p_Command.path = m_NewRoute
+		print("Attempting new route")
+		s_Result = s_CommandFunction(p_Command)
+	end
+	if(s_Result == nil) then
+		print(p_Command.name .. " returned nil")
+		return
+	end
+	print("end")
+
+end
+
+
+function Start()
+	m_Pos = GetPos()
+	if(m_Pos == nil) then
+		print("Failed to get pos, cannot continue")
+		return
+	end
+	Register()
+
+	while(true) do
+		print("Waiting for signal...")
+		local id, text = rednet.receive() -- need to capture the output from the receive in some vars
+		local s_Command = ParseCommand(text)
+		if(s_Command ~= nil) then
+			OnRecieveCommand(s_Command)
+		else
+			print("error " .. text)
+		end
+	end
+end
+
+Start()

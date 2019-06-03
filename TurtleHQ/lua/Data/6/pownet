@@ -1,0 +1,30 @@
+--PowNet
+rednet.open("top")
+
+
+function SendCommand( p_Realm, p_Command )
+	p_Command.realm = p_Realm
+	rednet.broadcast(textutils.serialize( s_Command ))
+end
+function ParseCommand( p_Command )
+	local s_Command = textutils.unserialize( tostring(p_Command) )
+	if(s_Command == nil) then
+		print("Could not deserialize command?")
+		return
+	end
+	local s_CommandName = s_Command.name
+	if(s_CommandName == nil) then
+		print("nil command")
+		return
+	end
+	return s_Command
+end
+
+function ReportStatus()
+	local s_Message = {
+		name = "ServerStatus",
+		server = "Main",
+		status = "Online"
+	}
+	SendCommand("Server", s_Message)
+end
