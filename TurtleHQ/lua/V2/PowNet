@@ -1,0 +1,163 @@
+REDNET_TIMEOUT = 1
+--===== SET REDNET PROTOCOL =====--
+SERVER_PROTOCOL = "PowNet:Server"
+DRONE_PROTOCOL = "PowNet:Drone"
+
+MODULENAME = os.getComputerLabel()
+
+MESSAGE_TYPE = {
+    GET = 0,
+    SET = 1,
+    INIT = 2,
+    REGISTER = 3,
+    UPDATE = 4,
+    CALL = 5
+}
+local m_ServerEvents = {}
+local m_DroneEvents = {}
+
+--===== OPEN REDNET =====--
+local host = rednet.lookup(SERVER_PROTOCOL, MODULENAME)
+if host and host ~= os.computerID() then
+    printError(os.getComputerLabel() " server already running?")
+    return
+end
+rednet.host(SERVER_PROTOCOL, MODULENAME)
+
+for _, side in ipairs(redstone.getSides()) do
+    if peripheral.getType(side) == "modem" then
+        rednet.open(side)
+    end
+end
+
+if not rednet.isOpen() then
+    printError("could not open rednet")
+    return
+end
+function Lookup(p_Name)
+    return rednet.lookup(SERVER_PROTOCOL, p_Name)
+end
+
+function Connect()
+    MAINFRAME = rednet.lookup(SERVER_PROTOCOL, "MAINFRAME")
+    if not MAINFRAME then
+        print("Failed to connect to MainFrame")
+        return false
+    end
+        -- Initialize our data for faster lookup
+    print("Requesting data...")
+
+    local s_Message = PowNet.newMessage(MESSAGE_TYPE.INIT, MODULENAME)
+    local s_Response = PowNet.sendAndWaitForResponse(MAINFRAME, s_Message, PowNet.SERVER_PROTOCOL)
+    if s_Response then
+        print("Successfully updated data")
+        return true, s_Response
+    else
+        error("Failed to fetch data")
+        return false
+    end
+end
+
+
+
+function UpdateModule(p_Module)
+    local s_Message = {
+        type = MESSAGE_TYPE.UPDATE,
+        ID = math.random(0, 2^30),
+        dataKey = p_Module,
+        data = false
+    }
+
+    local s_Response = sendAndWaitForResponse(MAINFRAME, s_Message, SERVER_PROTOCOL)
+    if not s_Response then
+        print("Failed to receive program: " .. p_Module)
+        return
+    end
+    if(s_Response == "InvalidName") then
+        error("No module by this name: " .. p_Module)
+    end
+
+    local file = fs.open("/" .. p_Module, "w")
+    file.write(s_Response)
+    file.close()
+    print("Successfully updated module: " .. p_Module)
+end
+
+function newMessage(messageType, dataKey, data)
+    return {
+        type = messageType,
+        ID = math.random(0, 2^30),
+        dataKey = dataKey,
+        data = data,
+    }
+end
+
+function RegisterEvents( p_ServerEvents, p_DroneEvents )
+    m_ServerEvents = p_ServerEvents
+    m_DroneEvents = p_DroneEvents
+    print("Events registered")
+end
+
+function main()
+    while true do
+        local serverID, serverMessage = rednet.receive(PowNet.SERVER_PROTOCOL)
+        if type(serverMessage) == "table" then
+            if(serverMessage.type == PowNet.MESSAGE_TYPE.INIT and serverMessage.ID == 0) then
+                print("Server has been initialized. Rebooting and performing updates.")
+                os.reboot()
+            end
+            print(serverMessage.dataKey)
+            if(m_ServerEvents[serverMessage.dataKey] ~= nil) then
+                print("Found the thing")
+                m_ServerEvents[serverMessage.dataKey](serverID, serverMessage)
+            end
+        end
+
+        local droneID, droneMessage = rednet.receive(PowNet.DRONE_PROTOCOL)
+        if type(droneMessage) == "table" then
+            if(m_DroneEvents[droneMessage.dataKey] ~= nil) then
+                m_DroneEvents[droneMessage.dataKey](droneID, droneMessage)
+            end
+        end
+    end
+end
+
+function SendToServer(p_ServerName, message)
+    local s_Server = PowNet.Lookup(p_ServerName)
+    if(s_Server == nil) then
+        print("Could not find server: " .. p_ServerName)
+        return false
+    end
+    rednet.send(s_Server, message, PowNet.SERVER_PROTOCOL)
+    return true
+end
+
+function sendAndWaitForResponse(recipientID, message, protocol)
+    rednet.send(recipientID, message, protocol)
+    local attemptNumber = 1
+    while true do
+        local senderID, reply = rednet.receive(protocol, REDNET_TIMEOUT)
+        if senderID == recipientID and type(reply) == "table" and reply.type == message.type and reply.ID == message.ID then
+            return reply.data
+        elseif not senderID then
+            if attemptNumber < 3 then
+                rednet.send(recipientID, message, protocol)
+                attemptNumber = attemptNumber + 1
+            else
+                return false
+            end
+        end
+    end
+end
+
+--===== USER INTERFACE =====--
+function control()
+    while true do
+        local event, key = os.pullEvent("key")
+        if key == keys.backspace then
+            break
+        end
+    end
+end
+
+

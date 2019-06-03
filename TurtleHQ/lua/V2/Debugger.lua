@@ -6,7 +6,6 @@ Log("Starting...")
 
 --===== UTILS =====--
 function OnDroneOnline(p_ID, p_Message)
-    print("CALLED!!!")
     print(p_ID)
     print(p_Message.type)
 end
@@ -20,6 +19,9 @@ PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents)
 
 SetStatus("Connected!", colors.green)
 print("Waiting for signal...")
+local message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "DroneOnline", "FUCK YEAH")
+PowNet.SendToServer("DroneMan", message)
+
 parallel.waitForAny(PowNet.main, PowNet.control)
 
 rednet.unhost(PowNet.SERVER_PROTOCOL)

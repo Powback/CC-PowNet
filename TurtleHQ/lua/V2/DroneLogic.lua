@@ -23,3 +23,4 @@ end
 -- SET NETNAV MAP
 netNav.setMap("PowMap", 15) -- the second argument determines how frequently the turtle will check with the server for newer map data
 
+print("I AM ALIVE!")

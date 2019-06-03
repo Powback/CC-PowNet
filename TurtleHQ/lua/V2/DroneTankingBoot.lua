@@ -5,6 +5,7 @@ if(s_Label ~= nil or s_Label == "DroneMan") then
 end
 print("Initializing Drone...")
 
+
 shell.run('copy /disk/droneData/* /*')
 while(turtle.getFuelLevel() == 0) do
     turtle.suckDown(1)
