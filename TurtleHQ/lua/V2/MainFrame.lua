@@ -1,6 +1,5 @@
 --Mainframe
 -- Goal: Handle communications and updates between servers
-
 local args = {...}
 
 --===== OPEN REDNET =====--
@@ -16,27 +15,25 @@ if not rednet.isOpen() then
 end
 --===== LOAD VFS =====--
 if not VFS then
-    if not os.loadAPI("VFS") then
+    if not os.loadAPI("disk/VFS") then
         error("could not load API: VFS")
     end
 end
-
 VFS.Init("MainFrame")
 
+if not Logger then
+    if not os.loadAPI("disk/Logger") then
+        error("could not load API: Logger")
+    end
+end
+Log("Loading...")
 
 --===== SET REDNET PROTOCOL =====--
 local POWNET_SERVER_PROTOCOL = "PowNet:Server"
 
 
 --===== HOST AS SERVER =====--
-do
-    local host = rednet.lookup(POWNET_SERVER_PROTOCOL, "MAINFRAME")
-    if host and host ~= os.computerID() then
-        printError("PowNet MAINFRAME server already running?")
-        return
-    end
-end
-
+print("Starting MainFrame")
 rednet.host(POWNET_SERVER_PROTOCOL, "MAINFRAME")
 
 --===== UTILS =====--
@@ -44,7 +41,8 @@ local MESSAGE_TYPE = {
     GET = 0,
     SET = 1,
     INIT = 2,
-    PING = 2
+    REGISTER = 3,
+    UPDATE = 4
 }
 local receivedMessages = {}
 local receivedMessageTimeouts = {}
@@ -74,6 +72,7 @@ end
 --===== MAIN =====--
 local function main()
     while true do
+        print("Waiting for signal...")
         local senderID, message = rednet.receive(POWNET_SERVER_PROTOCOL)
         if type(message) == "table" then
             if message.type == MESSAGE_TYPE.GET then
@@ -90,11 +89,26 @@ local function main()
                 end
                 local replyMessage = newMessage(MESSAGE_TYPE.SET, message.ID, message.dataKey, true)
                 rednet.send(senderID, replyMessage, POWNET_SERVER_PROTOCOL)
-
             elseif message.type == MESSAGE_TYPE.INIT then
+                print("Initializing data from: " .. message.dataKey)
                 local s_EnvData = VFS.Init(message.dataKey)
-                local replyMessage = newMessage(MESSAGE_TYPE.REGISTER, message.ID, message.dataKey, s_EnvData)
+                local replyMessage = newMessage(MESSAGE_TYPE.INIT, message.ID, message.dataKey, s_EnvData)
                 rednet.send(senderID, replyMessage, POWNET_SERVER_PROTOCOL)
+
+            elseif message.type == MESSAGE_TYPE.UPDATE then
+                print("Sending update: " .. message.dataKey)
+                if (fs.exists("disk/" .. message.dataKey) == false) then
+                    print("Could not find program: " .. message.dataKey)
+                    local replyMessage = newMessage(MESSAGE_TYPE.UPDATE, message.ID, message.dataKey, "InvalidName")
+                    rednet.send(senderID, replyMessage, POWNET_SERVER_PROTOCOL)
+                else
+                    local file = fs.open("disk/" .. message.dataKey,"r")
+                    local data = file.readAll()
+                    file.close()
+                    local replyMessage = newMessage(MESSAGE_TYPE.UPDATE, message.ID, message.dataKey, data)
+                    rednet.send(senderID, replyMessage, POWNET_SERVER_PROTOCOL)
+
+                end
             end
         end
     end
@@ -111,10 +125,12 @@ local function control()
 end
 
 local function Connect()
-
     -- Initialize our data for faster lookup
     local s_Message = newMessage(MESSAGE_TYPE.INIT, 0,"MAINFRAME")
     rednet.broadcast(s_Message, POWNET_SERVER_PROTOCOL)
+    print("Dispatched server boot")
+    Log("Connected!", colors.green)
+
 end
 
 Connect()

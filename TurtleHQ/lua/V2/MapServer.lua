@@ -1,4 +1,4 @@
---DroneMan
+--MapServer
 --Goal: Handle drones and their status
 
 local REDNET_TIMEOUT = 1
@@ -23,24 +23,27 @@ local POWNET_SERVER_PROTOCOL = "PowNet:Server"
 local POWNET_DRONE_PROTOCOL = "PowNet:Drone"
 local MAINFRAME_ID =  nil
 
+
+
 --===== HOST AS SERVER =====--
 do
-    local host = rednet.lookup(POWNET_SERVER_PROTOCOL, "DRONEMAN")
+    local host = rednet.lookup(POWNET_SERVER_PROTOCOL, "MapServer")
     if host and host ~= os.computerID() then
-        printError("PowNet DRONEMAN server already running?")
+        printError("PowNet MapServer server already running?")
         return
     end
 end
 
-rednet.host(POWNET_SERVER_PROTOCOL, "DRONEMAN")
-rednet.host(POWNET_DRONE_PROTOCOL, "DRONEMAN")
+rednet.host(POWNET_SERVER_PROTOCOL, "MapServer")
+rednet.host(POWNET_DRONE_PROTOCOL, "MapServer")
 
 --===== UTILS =====--
 local MESSAGE_TYPE = {
     GET = 0,
     SET = 1,
     INIT = 2,
-    PING = 3
+    REGISTER = 3,
+    UPDATE = 4
 }
 local receivedMessages = {}
 local receivedMessageTimeouts = {}
@@ -104,6 +107,30 @@ local function control()
     end
 end
 
+function ApplyUpdate(p_Module, p_Path)
+    local s_Message = {
+        type = MESSAGE_TYPE.UPDATE,
+        ID = math.random(0, 2^30),
+        dataKey = p_Module,
+        data = false
+    }
+
+    print("Updating:  " .. p_Module)
+    local s_Response = sendAndWaitForResponse(MAINFRAME_ID, s_Message, POWNET_SERVER_PROTOCOL)
+    if not s_Response then
+        print("Failed to receive program: " .. p_Module)
+        return false
+    end
+    if(s_Response == "InvalidName") then
+        print("No module by this name: " .. p_Module)
+        return false
+    end
+
+    local file = fs.open(p_Path, "w")
+    file.write(s_Response)
+    file.close()
+end
+
 local function Connect()
     print("Connecting to MainFrame...")
     MAINFRAME_ID = rednet.lookup(POWNET_SERVER_PROTOCOL, "MAINFRAME")
@@ -115,7 +142,7 @@ local function Connect()
     -- Initialize our data for faster lookup
     print("Requesting data...")
 
-    local s_Message = newMessage(MESSAGE_TYPE.INIT, "DRONEMAN")
+    local s_Message = newMessage(MESSAGE_TYPE.INIT, "MapServer")
     local s_Response = sendAndWaitForResponse(MAINFRAME_ID, s_Message, POWNET_SERVER_PROTOCOL)
     if s_Response then
         m_Data = s_Response
@@ -128,9 +155,21 @@ local function Connect()
     end
 end
 
+function UpdateStation()
+    -- Main
+    ApplyUpdate('libs/maps/remoteMap/remoteMap_Server.lua', '/remoteMap_Server.lua')
+    ApplyUpdate('libs/maps/compactMap.lua', '/compactMap')
+
+end
+
+function runNavServer()
+    shell.run("remoteMap_Server.lua map PowMap")
+end
 
 if Connect() then
-    parallel.waitForAny(main, control)
+    UpdateStation()
+    print("Running!")
+    parallel.waitForAny(main, control, runNavServer)
 end
 
 rednet.unhost(POWNET_SERVER_PROTOCOL)

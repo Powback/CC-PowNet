@@ -28,7 +28,7 @@ function saveData()
     end
 
     for l_Env,l_EnvData in pairs(m_Data) do
-        local file = fs.open("data/" + l_Env, "w")
+        local file = fs.open("data/" .. l_Env, "w")
         file.write(textutils.serialize(l_EnvData))
         file.close()
     end
@@ -36,11 +36,11 @@ function saveData()
 end
 
 function loadData(p_Env)
-    if(not fs.exists("data/" + m_Env)) then
+    if(not fs.exists("data/" .. p_Env)) then
         error("No data of that type stored.")
         return false
     end
-    local file = fs.open("data/" + m_Env,"r")
+    local file = fs.open("data/" .. p_Env,"r")
     local data = file.readAll()
     file.close()
     return textutils.unserialize(data)
@@ -48,7 +48,7 @@ end
 
 function Init(p_Env)
     m_Data[p_Env] = {}
-    if(fs.exists("data/" + p_Env)) then
+    if(fs.exists("data/" .. p_Env)) then
         m_Data[p_Env] = loadData(p_Env)
     else
         saveData();

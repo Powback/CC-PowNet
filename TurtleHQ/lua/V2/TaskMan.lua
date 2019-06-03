@@ -1,4 +1,4 @@
---DroneMan
+--TASKMAN
 --Goal: Handle drones and their status
 
 local REDNET_TIMEOUT = 1
@@ -25,15 +25,15 @@ local MAINFRAME_ID =  nil
 
 --===== HOST AS SERVER =====--
 do
-    local host = rednet.lookup(POWNET_SERVER_PROTOCOL, "DRONEMAN")
+    local host = rednet.lookup(POWNET_SERVER_PROTOCOL, "TASKMAN")
     if host and host ~= os.computerID() then
-        printError("PowNet DRONEMAN server already running?")
+        printError("PowNet TASKMAN server already running?")
         return
     end
 end
 
-rednet.host(POWNET_SERVER_PROTOCOL, "DRONEMAN")
-rednet.host(POWNET_DRONE_PROTOCOL, "DRONEMAN")
+rednet.host(POWNET_SERVER_PROTOCOL, "TASKMAN")
+rednet.host(POWNET_DRONE_PROTOCOL, "TASKMAN")
 
 --===== UTILS =====--
 local MESSAGE_TYPE = {
@@ -115,7 +115,7 @@ local function Connect()
     -- Initialize our data for faster lookup
     print("Requesting data...")
 
-    local s_Message = newMessage(MESSAGE_TYPE.INIT, "DRONEMAN")
+    local s_Message = newMessage(MESSAGE_TYPE.INIT, "TASKMAN")
     local s_Response = sendAndWaitForResponse(MAINFRAME_ID, s_Message, POWNET_SERVER_PROTOCOL)
     if s_Response then
         m_Data = s_Response
