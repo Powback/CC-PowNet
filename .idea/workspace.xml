@@ -16,17 +16,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1031">
-              <caret line="114" lean-forward="true" selection-start-line="114" selection-end-line="114" />
+            <state relative-caret-position="623">
+              <caret line="80" selection-start-line="80" selection-end-line="88" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="623">
+              <caret line="47" lean-forward="true" selection-start-line="47" selection-end-line="47" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="725">
-              <caret line="53" column="28" lean-forward="true" selection-start-line="53" selection-start-column="28" selection-end-line="53" selection-end-column="28" />
+            <state relative-caret-position="544">
+              <caret line="32" column="5" lean-forward="true" selection-start-line="32" selection-start-column="5" selection-end-line="32" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -102,17 +111,17 @@
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneBoot.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TankStation.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/libs/Template.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/Debugger.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/VFS" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/PowNetRemote.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/startup" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetRemote.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua" />
       </list>
     </option>
   </component>
@@ -198,7 +207,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1559678423268" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1559678603186" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
@@ -231,12 +240,12 @@
       <option name="presentableId" value="Default" />
       <updated>1559571371555</updated>
       <workItem from="1559571376716" duration="329000" />
-      <workItem from="1559571763133" duration="42563000" />
+      <workItem from="1559571763133" duration="42743000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="42892000" />
+    <option name="totallyTimeSpent" value="43072000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
@@ -444,13 +453,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="30" column="28" selection-end-line="46" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
@@ -514,17 +516,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1031">
-          <caret line="114" lean-forward="true" selection-start-line="114" selection-end-line="114" />
+        <state relative-caret-position="623">
+          <caret line="47" lean-forward="true" selection-start-line="47" selection-end-line="47" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="725">
-          <caret line="53" column="28" lean-forward="true" selection-start-line="53" selection-start-column="28" selection-end-line="53" selection-end-column="28" />
+        <state relative-caret-position="623">
+          <caret line="80" selection-start-line="80" selection-end-line="88" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="32" column="5" lean-forward="true" selection-start-line="32" selection-start-column="5" selection-end-line="32" selection-end-column="5" />
         </state>
       </provider>
     </entry>

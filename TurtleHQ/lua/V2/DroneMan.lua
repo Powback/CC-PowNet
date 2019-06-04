@@ -43,8 +43,9 @@ local m_DroneEvents = {
     RegisterDrone = OnRegisterDrone,
     Heartbeat = OnHeartbeat
 }
+
 local m_ServerEvents = {
-    DroneOnline = OnDroneOnline
+
 }
 
 function Render()

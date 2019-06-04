@@ -10,7 +10,7 @@ function Init()
     end
 end
 
-function RegisterTask(p_ID, p_Pos)
+function CreateTask(p_ID, p_Pos)
 
 end
 
@@ -19,7 +19,18 @@ local m_DroneEvents = {
 }
 
 local m_ServerEvents = {
-    AddTaks = OnAddTask
+    CreateTask = {
+        callable = true,
+        params = {
+            "Name",
+            "Task",
+            "TaskParams",
+            "Priority",
+            "MinWorkers",
+            "MaxWorkers",
+        },
+        func = OnAddDockingTower
+    }
 }
 
 function Render()
