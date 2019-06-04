@@ -14,41 +14,117 @@ function Init()
     if(DATA["lastTower"] == nil) then
         DATA["lastTower"] = 0
     end
+    if DATA["occupants"] == nil then
+        DATA["occupants"] = {}
+    end
 end
+
+function GetXZFromHeading( p_Heading )
+    if( p_Heading == 0) then
+        return {x = 0, z = 1}
+    end
+    if( p_Heading == 1) then
+        return {x = 1, z = 0}
+    end
+    if( p_Heading == 2) then
+        return {x = 0, z = -1}
+    end
+    if( p_Heading == 3) then
+        return {x = -1, z = 0}
+    end
+    return false
+end
+function GetTowerPos( p_Index )
+    local s_Pos = DATA["towers"][p_Index].pos
+    return {x= s_Pos.x, y = s_Pos.y, z = s_Pos.z}
+end
+function GetXYZFromSlot( p_Tower, p_Slot)
+    local s_Direction = (p_Slot % 4)
+    local s_TowerPos = GetTowerPos(p_Tower)
+    local s_Offset = GetXZFromHeading(s_Direction)
+    local s_Ret = s_TowerPos
+    local s_yLevel = math.floor(p_Slot / 4)
+
+    s_Ret.x = s_TowerPos.x + s_Offset.x
+    s_Ret.z = s_TowerPos.z + s_Offset.z
+    s_Ret.y = s_yLevel + s_TowerPos.y
+    return s_Ret
+end
+
+function GetSlotPosition(p_Tower, p_Slot)
+    local s_SlotHeading = p_Slot % 4
+    print(s_SlotHeading)
+end
+
+function GetFreeSlot( )
+    for k,v in pairs(DATA["towers"]) do
+        if(v.freeSlot < v.slots) then
+            return {tower = k, slot = v.freeSlot}
+        end
+    end
+end
+
+function RegisterSlot( p_Id, p_Tower, p_Slot )
+    DATA["towers"][p_Tower].occupants[p_Slot] = p_Id
+    DATA["towers"][p_Tower].freeSlot = DATA["towers"][p_Tower].freeSlot + 1
+end
+
+function OnAllocateDocking(p_Id, p_Message)
+    local s_Id = p_Message.data.id
+    local s_Slot = GetFreeSlot()
+    local s_DockingPos = GetXYZFromSlot(s_Slot.tower, s_Slot.slot)
+    RegisterSlot(p_Message.data.id, s_Slot.tower, s_Slot.slot)
+    DATA["occupants"][s_Id] = {tower = s_Slot.tower, slot = s_Slot.slot, pos = s_DockingPos}
+
+    return true, DATA["occupants"][s_Id]
+end
+
 function OnListDockingTowers(p_Id, p_Message)
     local s_List = {}
     local s_Message = ""
-    for k,_ in pairs(DATA["towers"]) do
-        table.insert(s_List, k)
-        s_Message = s_Message .. k .. ", "
+    for _,l_Tower in pairs(DATA["towers"]) do
+        print(_)
+        s_List[l_Tower.id] = l_Tower.name
+        s_Message = s_Message .. l_Tower.id .. ", "
     end
     if s_Message == "" then
         s_Message = "No towers registered."
     end
     return true, {message = s_Message, list = s_List}
 end
+
 function OnDelDockingTower(p_Id, p_Message)
-    if(p_Message.data == nil) then
+    if(p_Message.data == nil or p_Message.data.id == nil) then
         return false, "No ID specified"
     end
-    if(DATA["towers"][p_Id] == nil) then
-        return false, "Tower " .. p_Id .. " does not exist."
+    local s_ID = p_Message.data.id
+
+    if(DATA["towers"][s_ID] == nil) then
+        return false, "Tower " .. s_ID .. " does not exist."
     end
-    for _,l_DroneID in DATA["towers"][p_Id].occupants do
+    for _,l_DroneID in DATA["towers"][s_ID].occupants do
         local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "DroneHomeless", {id = l_DroneID})
         PowNet.send("DroneMan", s_Message)
     end
-    DATA["towers"][p_Id] = nil
+    DATA["towers"][s_ID] = nil
     return true, {message = "Destroyed tower. ID: " .. s_Tower.id, id = s_Tower.id}
 end
 
 function OnAddDockingTower(p_Id, p_Message)
     print("Yee to the haw")
-    if(p_Message.data.pos == nil or p_Message.data.height == nil) then
+    -- Fix defaults
+    if(p_Message.data.gps ~= nil and p_Message.data.pos == nil) then
+        p_Message.data.pos = p_Message.data.gps
+    end
+    print(p_Message.data.pos)
+    if(p_Message.data.height == nil) then
+        p_Message.data.height = 3
+    end
+    if (p_Message.data.pos == nil) then
         return false, "Missing pos/height"
     end
     if (p_Message.data.name == nil) then
-        return false, "Please enter a name"
+        return false, "Missing name"
     end
 
     local s_Tower = {
@@ -62,7 +138,7 @@ function OnAddDockingTower(p_Id, p_Message)
     }
 
     DATA["lastTower"] = DATA["lastTower"] + 1
-    DATA["towers"][DATA["lastTower"]] = s_Tower
+    DATA["towers"][s_Tower.id] = s_Tower
     DATA["nameLookup"][p_Message.data.name] = s_Tower.id
 
     print("Added Docking Tower")
@@ -81,9 +157,14 @@ local m_ServerEvents = {
     AddDockingTower = {
         callable = true,
         params = {
-            "Name",
-            "Height",
-            "Pos",
+            name = {
+                required = true
+            },
+            height = {
+            },
+            pos = {
+                length = 3
+            },
         },
         func = OnAddDockingTower
     },
@@ -91,25 +172,60 @@ local m_ServerEvents = {
     DelDockingTower = {
         callable = true,
         params = {
-            "ID"
+            id = {
+                required = true
+            }
         },
         func = OnDelDockingTower
     },
     ListDockingTowers = {
         callable = true,
         params = {
-
+            pos  ={
+                length = 0
+            },
+            height  ={
+                length = 0
+            },
+            free  ={
+                length = 0
+            },
+            slots = {
+                length = 0
+            }
         },
         func = OnListDockingTowers
     },
     EditDockingTower = {
         callable = true,
         params = {
-            "Name",
-            "Height",
-            "Pos",
+            id = {
+
+            },
+            name = {
+
+            },
+            height = {
+
+            },
+            pos = {
+                length = 3
+            },
         },
         func = OnEditDockingTower
+    },
+
+    AllocateDocking = {
+        callable = true,
+        params = {
+            id = {
+
+            },
+            Tower = {
+
+            }
+        },
+        func = OnAllocateDocking
     }
 }
 
@@ -124,7 +240,7 @@ function Render()
     for k,v in pairs(DATA["towers"]) do
         i = i + 1
         m_Monitor.setCursorPos(1,i)
-        m_Monitor.write("[" .. v.id .. "] - [" .. #v.occupants .. "/" .. v.slots .. "]")
+        m_Monitor.write("[" .. v.id .. "] " .. v.name .. " - [" .. #v.occupants .. "/" .. v.slots .. "] -  " .. "("..v.pos.x .. ", " .. v.pos.y .. ", " .. v.pos.z .. ")")
     end
 end
 

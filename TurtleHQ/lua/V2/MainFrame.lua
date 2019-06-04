@@ -2,6 +2,7 @@
 -- Goal: Handle communications and updates between servers
 os.loadAPI("disk/PowNet")
 
+local m_LoadedCallable = {}
 
 --===== LOAD VFS =====--
 if not VFS then
@@ -49,7 +50,6 @@ local function main()
     while true do
         local senderID, message = rednet.receive(PowNet.SERVER_PROTOCOL)
         if type(message) == "table" then
-            print(message.type)
             print(message.dataKey)
             if message.type == PowNet.MESSAGE_TYPE.GET then
                 local data = VFS.getData(message.dataKey)
@@ -68,6 +68,7 @@ local function main()
                 end
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.SET, message.ID, message.dataKey, true)
                 rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
+
             elseif message.type == PowNet.MESSAGE_TYPE.INIT then
                 if(message.dataKey == nil) then
                     return
@@ -87,6 +88,20 @@ local function main()
                     local replyMessage = newMessage(PowNet.MESSAGE_TYPE.UPDATE, message.ID, message.dataKey, data)
                     rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
 
+                end
+            elseif message.type == PowNet.MESSAGE_TYPE.REGISTER then
+                if(message.dataKey == "RegisterCallable") then
+                    if(m_LoadedCallable[message.data.module] == nil) then
+                        m_LoadedCallable[message.data.module] = {}
+                    end
+                    m_LoadedCallable[message.data.module][message.data.name] = message.data
+                end
+                if(message.dataKey == "GetCallable") then
+                    for k,v in pairs(m_LoadedCallable) do
+                        print(k)
+                    end
+                    local replyMessage = newMessage(PowNet.MESSAGE_TYPE.REGISTER, message.ID, message.dataKey, m_LoadedCallable)
+                    rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
                 end
             end
         end

@@ -2,7 +2,7 @@ local m_Data = {}
 
 function setData(p_Key, p_Data)
     if(m_Data[p_Key] == nil) then
-        error("Env not initialized")
+        error("Env not initialized: " .. p_Key)
         return false
     end
     m_Data[p_Key] = p_Data

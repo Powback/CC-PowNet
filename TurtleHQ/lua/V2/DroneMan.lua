@@ -21,16 +21,24 @@ function RegisterDrone(p_ID, p_Pos)
         id = p_ID,
         pos = p_Pos,
         status = "idle",
-        name = s_DroneName
+        name = s_DroneName,
+        role = "peasant"
     }
-    return s_DroneName
+
+    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "AllocateDocking", {id = p_ID})
+    local s_Response = PowNet.sendAndWaitForResponse("DockingMan", s_Message)
+    if(not s_Response) then
+        print("Failed to get docking")
+        return {name = s_DroneName}
+    end
+    return {name = s_DroneName, go = s_Response.pos}
 end
 
 function OnHeartbeat(p_ID, p_Message)
     for k,v in pairs(p_Message.data) do
         DATA["drones"][p_ID][k] = v
     end
-    return "Hello from the other side"
+    return true
 end
 
 function OnRegisterDrone(p_ID, p_Message)

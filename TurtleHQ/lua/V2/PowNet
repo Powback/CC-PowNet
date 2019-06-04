@@ -47,7 +47,7 @@ function Connect(p_Module)
     if s_Response then
         return true, s_Response
     else
-        error("Failed to fetch data")
+        print("Failed to fetch data")
         return false
     end
 end
@@ -66,6 +66,12 @@ function RegisterEvents( p_ServerEvents, p_DroneEvents, p_Update )
     m_DroneEvents = p_DroneEvents
     m_Update = p_Update
 
+    for k,v in pairs(p_ServerEvents) do
+        if(v.callable) then
+            local s_Message = newMessage(PowNet.MESSAGE_TYPE.REGISTER, "RegisterCallable", {module = MODULENAME, name = k, params = v.params})
+            PowNet.Send(MAINFRAME, s_Message, SERVER_PROTOCOL)
+        end
+    end
 end
 function UpdateModule(p_Module, p_Path)
     local s_Message = {
@@ -81,7 +87,7 @@ function UpdateModule(p_Module, p_Path)
         return
     end
     if(s_Response == "InvalidName") then
-        error("No module by this name: " .. p_Module)
+        print("No module by this name: " .. p_Module)
     end
     if(p_Path == nil) then
         p_Path = "/" .. p_Module
@@ -108,11 +114,15 @@ function main()
             end
             if(m_ServerEvents[serverMessage.dataKey] ~= nil) then
                 print("Received: " .. serverMessage.dataKey)
-                local s_Result, s_Response = m_ServerEvents[serverMessage.dataKey](serverID, serverMessage)
-                if(s_Result ~= nil) then
-                    serverMessage.status = s_Result
-                    serverMessage.data = s_Response
-                    rednet.send(serverID, serverMessage, SERVER_PROTOCOL)
+                if(m_ServerEvents[serverMessage.dataKey].func == nil) then
+                    print(serverMessage.dataKey .. " was found, but had no function")
+                else
+                    local s_Result, s_Response = m_ServerEvents[serverMessage.dataKey].func(serverID, serverMessage)
+                    if(s_Result ~= nil) then
+                        serverMessage.status = s_Result
+                        serverMessage.data = s_Response
+                        rednet.send(serverID, serverMessage, SERVER_PROTOCOL)
+                    end
                 end
             else
                 print("No event with the name: " .. serverMessage.dataKey)
@@ -183,6 +193,21 @@ function sendAndWaitForResponse(p_Recipient, message, protocol)
                 return false
             end
         end
+    end
+end
+function dump(o)
+    if(o == nil) then
+        print("tried to load jack shit")
+    end
+    if type(o) == 'table' then
+        local s = '{ '
+        for k,v in pairs(o) do
+            if type(k) ~= 'number' then k = '"'..k..'"' end
+            s = s .. '['..k..'] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
     end
 end
 

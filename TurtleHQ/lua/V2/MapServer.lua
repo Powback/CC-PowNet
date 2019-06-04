@@ -135,7 +135,7 @@ local function Connect()
     print("Connecting to MainFrame...")
     MAINFRAME_ID = rednet.lookup(POWNET_SERVER_PROTOCOL, "MAINFRAME")
     if not MAINFRAME_ID then
-        error("Unable to find mainframe")
+        printError("Unable to find mainframe")
         return false
     end
 

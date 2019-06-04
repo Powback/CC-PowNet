@@ -29,8 +29,15 @@ function Init()
             print("Failed to call home.")
             return
         end
-        os.setComputerLabel(s_Response)
-        print("I am " .. s_Response .. ", and I am here to serve.")
+        os.setComputerLabel(s_Response.name)
+        print("I am " .. s_Response.name .. ", and I am here to serve.")
+        if(s_Response.go) then
+            print("Docking!")
+            print(s_Response.go.x)
+            print(s_Response.go.y)
+            print(s_Response.go.z)
+            print(netNav.goto(s_Response.go.x, s_Response.go.y, s_Response.go.z))
+        end
     end
 end
 function SendHeartBeat()
@@ -43,12 +50,6 @@ function SendHeartBeat()
     local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "Heartbeat", s_Data)
     PowNet.Send("DroneMan", s_Message, PowNet.DRONE_PROTOCOL)
 end
-function OnBoot()
-    SendHeartBeat()
-end
+
 Init()
-OnBoot()
-
-
-
 parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
