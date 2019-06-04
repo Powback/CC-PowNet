@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua" line="77" />
+    <bookmark url="file://$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua" line="81" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e47e23d-f017-41bc-8e7c-e3ff8801e59c" name="Default Changelist" comment="" />
@@ -16,35 +16,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/startup">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" column="34" lean-forward="true" selection-start-line="4" selection-start-column="34" selection-end-line="4" selection-end-column="34" />
+            <state relative-caret-position="136">
+              <caret line="8" column="13" lean-forward="true" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="21" column="30" lean-forward="true" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/Debugger.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+            <state relative-caret-position="799">
+              <caret line="47" selection-start-line="47" selection-end-line="47" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/PowNetRemote.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1020">
-              <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
+            <state relative-caret-position="306">
+              <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
             </state>
           </provider>
         </entry>
@@ -52,17 +43,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" selection-start-line="11" selection-end-line="27" selection-end-column="3" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TankStation.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="827">
-              <caret line="160" column="23" selection-start-line="160" selection-start-column="23" selection-end-line="160" selection-end-column="23" />
+            <state relative-caret-position="510">
+              <caret line="30" column="28" selection-end-line="46" />
             </state>
           </provider>
         </entry>
@@ -70,8 +52,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-482">
-              <caret line="18" column="2" selection-start-line="18" selection-end-line="18" selection-end-column="2" />
+            <state relative-caret-position="731">
+              <caret line="43" lean-forward="true" selection-start-line="43" selection-end-line="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/remoteControl.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4301">
+              <caret line="253" column="3" lean-forward="true" selection-start-line="253" selection-start-column="3" selection-end-line="253" selection-end-column="3" />
             </state>
           </provider>
         </entry>
@@ -79,8 +70,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="25" column="20" lean-forward="true" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="20" />
+            <state relative-caret-position="493">
+              <caret line="29" selection-start-line="29" selection-end-line="29" />
             </state>
           </provider>
         </entry>
@@ -88,17 +79,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneBoot.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="26" selection-start-column="26" selection-end-column="26" />
+            <state relative-caret-position="221">
+              <caret line="13" column="41" selection-end-line="24" selection-end-column="27" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneTankingBoot.lua">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/DockingMan.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+            <state>
+              <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="12" column="7" lean-forward="true" selection-end-line="77" />
             </state>
           </provider>
         </entry>
@@ -114,36 +114,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>sendAndWaitForResponse</find>
-      <find>MAINFRAME</find>
-      <find>failed</find>
-      <find>MESSAGE_TYPE</find>
-      <find>newMessage</find>
-      <find>s_label</find>
-      <find>rednet.hos</find>
-      <find>mainframe</find>
-      <find>host</find>
-      <find>message_type</find>
-      <find>pownet</find>
-      <find>REDNET_TIMEOUT</find>
-      <find>start</find>
-      <find>printError</find>
-      <find>starting</find>
-      <find>connect</find>
-      <find>Log</find>
-      <find>drone</find>
-      <find>random</find>
-      <find>receivedMessages</find>
-      <find>newmessage</find>
-      <find>broadcast</find>
-      <find>NewMessage</find>
-      <find>messagetype</find>
-      <find>new</find>
-      <find>reg</find>
+      <find>Render</find>
+      <find>RegisterDrone</find>
+      <find>PowNet.send</find>
       <find>send</find>
-      <find>found the</find>
-      <find>lookup</find>
-      <find>p_Server</find>
+      <find>initserver</find>
+      <find>pownet</find>
+      <find>/disk/droneData</find>
+      <find>UpdateModule</find>
+      <find>MODULENAME</find>
+      <find>mainframe</find>
+      <find>reb</find>
+      <find>Connect</find>
+      <find>updatemodule</find>
+      <find>no update</find>
+      <find>re</find>
+      <find>updatemod</find>
+      <find>drones</find>
+      <find>ApplyUpdate</find>
+      <find>MAINFRAME</find>
+      <find>sendAndWaitForResponse</find>
+      <find>sendandwaitforResponse</find>
+      <find>connect</find>
+      <find>setData</find>
+      <find>vfs</find>
+      <find>setdata</find>
+      <find>saveData</find>
+      <find>save</find>
+      <find>dave</find>
+      <find>DATA</find>
+      <find>sendPingPacket</find>
     </findStrings>
     <replaceStrings>
       <replace>TANKSTATION</replace>
@@ -162,24 +162,27 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/VFS.lua" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/VFS" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/Log.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/Logger" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneBoot.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/index.html" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/MapServer.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetCommon.lua" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetCommon" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TankStation.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneTankingBoot.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/netNav.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneBoot.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TankStation.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua" />
-        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/startup" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/libs/Template.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/Debugger.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/startup" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/VFS" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet" />
+        <option value="$PROJECT_DIR$/TurtleHQ/lua/PowNetRemote.lua" />
       </list>
     </option>
   </component>
@@ -220,6 +223,41 @@
               <item name="lua" type="462c0819:PsiDirectoryNode" />
               <item name="V2" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="PowNet" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PowNet" type="462c0819:PsiDirectoryNode" />
+              <item name="TurtleHQ" type="462c0819:PsiDirectoryNode" />
+              <item name="lua" type="462c0819:PsiDirectoryNode" />
+              <item name="V2" type="462c0819:PsiDirectoryNode" />
+              <item name="libs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowNet" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PowNet" type="462c0819:PsiDirectoryNode" />
+              <item name="TurtleHQ" type="462c0819:PsiDirectoryNode" />
+              <item name="lua" type="462c0819:PsiDirectoryNode" />
+              <item name="V2" type="462c0819:PsiDirectoryNode" />
+              <item name="libs" type="462c0819:PsiDirectoryNode" />
+              <item name="maps" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowNet" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PowNet" type="462c0819:PsiDirectoryNode" />
+              <item name="TurtleHQ" type="462c0819:PsiDirectoryNode" />
+              <item name="lua" type="462c0819:PsiDirectoryNode" />
+              <item name="V2" type="462c0819:PsiDirectoryNode" />
+              <item name="libs" type="462c0819:PsiDirectoryNode" />
+              <item name="netNav" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PowNet" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PowNet" type="462c0819:PsiDirectoryNode" />
+              <item name="TurtleHQ" type="462c0819:PsiDirectoryNode" />
+              <item name="lua" type="462c0819:PsiDirectoryNode" />
+              <item name="V2" type="462c0819:PsiDirectoryNode" />
+              <item name="libs" type="462c0819:PsiDirectoryNode" />
+              <item name="starNav" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -230,7 +268,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1559599563894" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1559672181054" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
@@ -258,12 +296,12 @@
       <option name="presentableId" value="Default" />
       <updated>1559571371555</updated>
       <workItem from="1559571376716" duration="329000" />
-      <workItem from="1559571763133" duration="20505000" />
+      <workItem from="1559571763133" duration="36340000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20834000" />
+    <option name="totallyTimeSpent" value="36669000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
@@ -317,9 +355,6 @@
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/netNav_goto.lua">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/remoteControl.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/VFS.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="816">
@@ -331,13 +366,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
           <caret line="5" column="11" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/VFS">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="935">
-          <caret line="55" column="25" lean-forward="true" selection-start-line="55" selection-start-column="25" selection-end-line="55" selection-end-column="25" />
         </state>
       </provider>
     </entry>
@@ -368,9 +396,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/DockingMan.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/Logger.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -382,9 +407,6 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/PowNetCommands.lua">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/pownetcommon.lua">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/Server.lua">
@@ -431,13 +453,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/netNav.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="35" selection-start-line="7" selection-start-column="35" selection-end-line="7" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetCommon.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="782">
@@ -452,41 +467,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" selection-start-line="11" selection-end-line="27" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-482">
-          <caret line="18" column="2" selection-start-line="18" selection-end-line="18" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TankStation.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="827">
-          <caret line="160" column="23" selection-start-line="160" selection-start-column="23" selection-end-line="160" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneBoot.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="26" selection-start-column="26" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneTankingBoot.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
@@ -494,38 +474,122 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua">
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/pownetcommon.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="20" lean-forward="true" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="20" />
+        <state relative-caret-position="17">
+          <caret line="1" column="20" lean-forward="true" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="41" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/startup">
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/netNav.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="34" lean-forward="true" selection-start-line="4" selection-start-column="34" selection-end-line="4" selection-end-column="34" />
+        <state relative-caret-position="7">
+          <caret line="268" column="62" selection-start-line="268" selection-start-column="54" selection-end-line="268" selection-end-column="62" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/Template.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="21" column="30" lean-forward="true" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
+        <state relative-caret-position="1309">
+          <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TankStation.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="915">
+          <caret line="161" column="59" selection-start-line="161" selection-start-column="59" selection-end-line="161" selection-end-column="59" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/Debugger.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+        <state relative-caret-position="272">
+          <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/MainFrame.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/VFS">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="782">
+          <caret line="46" column="7" lean-forward="true" selection-start-line="46" selection-start-column="7" selection-end-line="46" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="30" column="28" selection-end-line="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="731">
+          <caret line="43" lean-forward="true" selection-start-line="43" selection-end-line="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/startup">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="13" lean-forward="true" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneMan.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="7" lean-forward="true" selection-end-line="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/DockingMan.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="29" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneBoot.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="13" column="41" selection-end-line="24" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/remoteControl.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4301">
+          <caret line="253" column="3" lean-forward="true" selection-start-line="253" selection-start-column="3" selection-end-line="253" selection-end-column="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1020">
-          <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
+        <state relative-caret-position="799">
+          <caret line="47" selection-start-line="47" selection-end-line="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/PowNetRemote.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
         </state>
       </provider>
     </entry>

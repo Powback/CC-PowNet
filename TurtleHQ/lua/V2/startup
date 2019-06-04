@@ -58,13 +58,20 @@ if(s_Label == "MainFrame") then
 end
 
 os.loadAPI("PowNet")
+local s_Started, s_Message = PowNet.InitServer()
+if not s_Started then
+    print("Failed to initialize:")
+    print(s_Message)
+    return
+end
+
 SetStatus("Connecting...")
 DATA = nil
 s_Connected, DATA = PowNet.Connect()
-
+print(DATA["drones"])
 if not s_Connected then
     SetStatus("Offline!", colors.red)
-    return
+    os.reboot()
 end
 SetStatus("Updating")
 
@@ -74,6 +81,13 @@ PowNet.UpdateModule(s_Label .. ".lua")
 SetStatus("Launching!", colors.green)
 shell.run(s_Label .. ".lua")
 SetStatus("Disconnected!", colors.red)
-
-
+--os.reboot()
+for k,v in pairs(DATA) do
+    print(k)
+    print(tostring(v))
+end
+local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.SET, s_Label, DATA)
+local s_Saved = PowNet.sendAndWaitForResponse(-1, s_Message, PowNet.SERVER_PROTOCOL)
+print(s_Saved)
+print("EXITED")
 

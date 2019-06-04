@@ -345,6 +345,7 @@ function setMap(mapName, mapTimeout)
 		error("timeout must be positive number")
 	end
 	serverMap = remoteMap.new(mapName, mapTimeout)
+	position = findPosition()
 end
 
 function getMap()

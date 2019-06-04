@@ -1,33 +1,46 @@
 --DroneMan
 --Goal: Handle drones and their status
 
-local m_Data
+local m_Monitor = peripheral.wrap("left")
+
 Log("Starting...")
-
---===== UTILS =====--
-local receivedMessages = {}
-local receivedMessageTimeouts = {}
-
-
---===== MAIN =====--
-local function main()
-    while true do
-        local serverID, serverMessage = rednet.receive(PowNet.SERVER_PROTOCOL)
-        if type(serverMessage) == "table" then
-            if(serverMessage.type == PowNet.MESSAGE_TYPE.INIT and serverMessage.ID == 0) then
-                print("Server has been initialized. Rebooting and performing updates.")
-                os.reboot()
-            end
-        end
-
-        local droneID, droneMessage = rednet.receive(PowNet.DRONE_PROTOCOL)
-        if type(droneMessage) == "table" then
-
-        end
+function Init()
+    if DATA["tasks"] == nil then
+        DATA["tasks"] = {}
     end
 end
 
+function RegisterTask(p_ID, p_Pos)
+
+end
+
+local m_DroneEvents = {
+
+}
+
+local m_ServerEvents = {
+    AddTaks = OnAddTask
+}
+
+function Render()
+    print("Render!")
+    m_Monitor.clear()
+    m_Monitor.setCursorPos(1,1)
+    m_Monitor.setTextScale(0.5)
+    -- Header
+    m_Monitor.write("TaskMan!")
+    local i = 1
+
+end
+
+
+Init()
+PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents, Render)
+
 SetStatus("Connected!", colors.green)
-print("Waiting for signal...")
-parallel.waitForAny(main, PowNet.control)
+
+Render()
+parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
+
+print("Unhosting")
 rednet.unhost(PowNet.SERVER_PROTOCOL)

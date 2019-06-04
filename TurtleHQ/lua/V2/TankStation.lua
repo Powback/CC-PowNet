@@ -160,12 +160,6 @@ function UpdateStation()
     ApplyUpdate('DroneTankingBoot.lua', '/disk/startup')
     ApplyUpdate('PowNet', '/disk/droneData/PowNet')
     ApplyUpdate('DroneBoot.lua', '/disk/droneData/startup')
-    ApplyUpdate('DroneLogic.lua', '/disk/droneData/DroneLogic.lua')
-    ApplyUpdate('libs/aStar.lua', '/disk/droneData/aStar')
-    ApplyUpdate('libs/location.lua', '/disk/droneData/location')
-    ApplyUpdate('libs/pQueue.lua', '/disk/droneData/pQueue')
-    ApplyUpdate('libs/netnav/netNav.lua', '/disk/droneData/netNav')
-    ApplyUpdate('libs/maps/remoteMap/remoteMap.lua', '/disk/droneData/remoteMap')
 
 end
 

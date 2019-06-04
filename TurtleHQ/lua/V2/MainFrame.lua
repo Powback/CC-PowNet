@@ -47,33 +47,37 @@ end
 --===== MAIN =====--
 local function main()
     while true do
-        print("Waiting for signal...")
         local senderID, message = rednet.receive(PowNet.SERVER_PROTOCOL)
         if type(message) == "table" then
+            print(message.type .. " - " .. message.dataKey)
+
             if message.type == PowNet.MESSAGE_TYPE.GET then
-                local data = vfs:getData(message.dataKey)
+                local data = VFS.getData(message.dataKey)
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.GET, message.ID, message.dataKey, data)
                 rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
 
 
             elseif message.type == PowNet.MESSAGE_TYPE.SET then
                 if not receivedMessages[message.ID] then
-                    vfs:setData(message.dataKey, message.data)
+                    if(message.data ~= nil ) then
+                        VFS.setData(message.dataKey, message.data)
+                        VFS.saveData(message.dataKey)
+                    end
                     receivedMessages[message.ID] = true
                     receivedMessageTimeouts[os.startTimer(15)] = message.ID
                 end
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.SET, message.ID, message.dataKey, true)
                 rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
             elseif message.type == PowNet.MESSAGE_TYPE.INIT then
-                print("Initializing data from: " .. message.dataKey)
+                if(message.dataKey == nil) then
+                    return
+                end
                 local s_EnvData = VFS.Init(message.dataKey)
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.INIT, message.ID, message.dataKey, s_EnvData)
                 rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
 
             elseif message.type == PowNet.MESSAGE_TYPE.UPDATE then
-                print("Sending update: " .. message.dataKey)
                 if (fs.exists("disk/" .. message.dataKey) == false) then
-                    print("Could not find program: " .. message.dataKey)
                     local replyMessage = newMessage(PowNet.MESSAGE_TYPE.UPDATE, message.ID, message.dataKey, "InvalidName")
                     rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
                 else

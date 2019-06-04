@@ -1,26 +1,31 @@
 local m_Data = {}
 
-function setData(p_Env, p_Key, p_Data)
-    if(m_Data[p_Env] == nil) then
+function setData(p_Key, p_Data)
+    if(m_Data[p_Key] == nil) then
         error("Env not initialized")
         return false
     end
-    m_Data[p_Env][p_Key] = p_Data
+    m_Data[p_Key] = p_Data
     return true
 end
-function getData(p_Env, p_Key)
-    if(m_Data[p_Env] == nil) then
-        error("Env not initialized")
-        return false
-    end
-    if(m_Data[p_Env][p_Key] == nil) then
+function getData(p_Key)
+    if(m_Data[p_Key] == nil) then
         error("Key not found")
         return false
     end
-    return m_Data[p_Env][p_Key]
+    return m_Data[p_Key]
 end
-
-function saveData()
+function saveData(p_Key)
+    if(p_Key == nil or m_Data[p_Key] == nil) then
+        print("Attempted to save invalid data")
+        return false
+    end
+    local file = fs.open("data/" .. p_Key, "w")
+    file.write(textutils.serialize(m_Data[p_Key]))
+    file.close()
+    return true
+end
+function saveAllData()
     if not fs.exists("data") then
         fs.makeDir("data")
         print("Data directory created")
@@ -35,23 +40,24 @@ function saveData()
     return true
 end
 
-function loadData(p_Env)
-    if(not fs.exists("data/" .. p_Env)) then
+function loadData(p_Key)
+    if(not fs.exists("data/" .. p_Key)) then
         error("No data of that type stored.")
         return false
     end
-    local file = fs.open("data/" .. p_Env,"r")
+    local file = fs.open("data/" .. p_Key,"r")
     local data = file.readAll()
     file.close()
     return textutils.unserialize(data)
 end
 
-function Init(p_Env)
-    m_Data[p_Env] = {}
-    if(fs.exists("data/" .. p_Env)) then
-        m_Data[p_Env] = loadData(p_Env)
+function Init(p_Key)
+    m_Data[p_Key] = {}
+    if(fs.exists("data/" .. p_Key)) then
+        print("Found data")
+        m_Data[p_Key] = loadData(p_Key)
     else
-        saveData();
+        saveAllData();
     end
-    return m_Data[p_Env];
+    return m_Data[p_Key];
 end
