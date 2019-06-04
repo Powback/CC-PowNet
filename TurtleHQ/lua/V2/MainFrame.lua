@@ -49,8 +49,8 @@ local function main()
     while true do
         local senderID, message = rednet.receive(PowNet.SERVER_PROTOCOL)
         if type(message) == "table" then
-            print(message.type .. " - " .. message.dataKey)
-
+            print(message.type)
+            print(message.dataKey)
             if message.type == PowNet.MESSAGE_TYPE.GET then
                 local data = VFS.getData(message.dataKey)
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.GET, message.ID, message.dataKey, data)

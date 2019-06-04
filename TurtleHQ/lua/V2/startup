@@ -68,7 +68,6 @@ end
 SetStatus("Connecting...")
 DATA = nil
 s_Connected, DATA = PowNet.Connect()
-print(DATA["drones"])
 if not s_Connected then
     SetStatus("Offline!", colors.red)
     os.reboot()

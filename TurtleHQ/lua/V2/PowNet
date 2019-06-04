@@ -65,6 +65,7 @@ function RegisterEvents( p_ServerEvents, p_DroneEvents, p_Update )
     m_ServerEvents = p_ServerEvents
     m_DroneEvents = p_DroneEvents
     m_Update = p_Update
+
 end
 function UpdateModule(p_Module, p_Path)
     local s_Message = {
@@ -107,11 +108,14 @@ function main()
             end
             if(m_ServerEvents[serverMessage.dataKey] ~= nil) then
                 print("Received: " .. serverMessage.dataKey)
-                local s_Response = m_ServerEvents[serverMessage.dataKey](serverID, serverMessage)
-                if(s_Response ~= nil) then
+                local s_Result, s_Response = m_ServerEvents[serverMessage.dataKey](serverID, serverMessage)
+                if(s_Result ~= nil) then
+                    serverMessage.status = s_Result
                     serverMessage.data = s_Response
                     rednet.send(serverID, serverMessage, SERVER_PROTOCOL)
                 end
+            else
+                print("No event with the name: " .. serverMessage.dataKey)
             end
         end
         Update()
@@ -138,7 +142,7 @@ function Send(p_Recipient, p_Message, p_Protocol)
     local s_RecipientID = p_Recipient
     if(type(p_Recipient) == "string") then
         s_RecipientID = PowNet.Lookup(p_Recipient)
-        if(s_RecipientID == nil) then
+        if(s_RecipientID == nil or s_RecipientID == os.getComputerID()) then
             print("Could not find server: " .. p_Recipient)
             return false
         end
@@ -161,8 +165,11 @@ function sendAndWaitForResponse(p_Recipient, message, protocol)
     if(p_Recipient == -1) then
         p_Recipient = MAINFRAME
     end
-    local s_RecipientID = Send(p_Recipient, message, protocol)
+    if(protocol == nil) then
+        protocol = SERVER_PROTOCOL
+    end
 
+    local s_RecipientID = Send(p_Recipient, message, protocol)
     local attemptNumber = 1
     while true do
         local senderID, reply = rednet.receive(protocol, REDNET_TIMEOUT)
