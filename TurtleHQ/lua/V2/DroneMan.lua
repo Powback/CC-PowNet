@@ -6,17 +6,17 @@ local m_Monitor = peripheral.wrap("left")
 Log("Starting...")
 function Init()
     if DATA["lastDrone"] == nil then
-        DATA["lastDrone"] = 0
+        DATA["lastDrone"] = 1
     end
     if DATA["drones"] == nil then
         DATA["drones"] = {}
     end
 end
 
-function RegisterDrone(p_ID, p_Pos)
+function RegisterDrone(p_ID, p_Pos, p_Heading)
     local s_DroneName = "D" .. DATA["lastDrone"]
 
-    DATA["lastDrone"] = DATA["lastDrone"] + 1;
+    DATA["lastDrone"] = DATA["lastDrone"] + 1
     DATA["drones"][p_ID] = {
         id = p_ID,
         pos = p_Pos,
@@ -29,9 +29,16 @@ function RegisterDrone(p_ID, p_Pos)
     local s_Response = PowNet.sendAndWaitForResponse("DockingMan", s_Message)
     if(not s_Response) then
         print("Failed to get docking")
-        return {name = s_DroneName}
+        return false, "Failed to get docking"
     end
-    return {name = s_DroneName, go = s_Response.pos}
+    if(not type(s_Response) == "table") then
+        print("wtf")
+        print(s_Response)
+    end
+    print("pos_:")
+    print(s_Response.pos)
+
+    return true, {name = s_DroneName, go = s_Response.pos, heading = s_Response.heading}
 end
 
 function OnHeartbeat(p_ID, p_Message)
@@ -43,17 +50,17 @@ end
 
 function OnRegisterDrone(p_ID, p_Message)
     print("New Drone")
-    local s_DroneName = RegisterDrone(p_ID, p_Message.data.pos)
-    return s_DroneName
+    local s_Result, s_Data = RegisterDrone(p_ID, p_Message.data.pos, p_Message)
+    print(s_Data)
+    return true, s_Data
 end
 
 local m_DroneEvents = {
-    RegisterDrone = OnRegisterDrone,
     Heartbeat = OnHeartbeat
 }
 
 local m_ServerEvents = {
-
+    RegisterDrone = OnRegisterDrone,
 }
 
 function Render()
@@ -80,7 +87,7 @@ PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents, Render)
 SetStatus("Connected!", colors.green)
 
 Render()
-parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
+parallel.waitForAny(PowNet.main, PowNet.control)
 
 print("Unhosting")
 rednet.unhost(PowNet.SERVER_PROTOCOL)

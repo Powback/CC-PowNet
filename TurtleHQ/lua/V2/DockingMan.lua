@@ -3,6 +3,7 @@
 
 local m_Monitor = peripheral.wrap("left")
 
+
 Log("Starting...")
 function Init()
     if DATA["towers"] == nil then
@@ -11,25 +12,27 @@ function Init()
     if DATA["nameLookup"] == nil then
         DATA["nameLookup"] = {}
     end
-    if(DATA["lastTower"] == nil) then
-        DATA["lastTower"] = 0
+    if(DATA["nextTower"] == nil) then
+        DATA["nextTower"] = 1
     end
     if DATA["occupants"] == nil then
         DATA["occupants"] = {}
     end
+    North, West, East, South, Up, Down = 0, 1, 2, 3, 4, 5
+
 end
 
 function GetXZFromHeading( p_Heading )
-    if( p_Heading == 0) then
+    if( p_Heading == 0) then --n
         return {x = 0, z = 1}
     end
-    if( p_Heading == 1) then
+    if( p_Heading == 1) then -- e
         return {x = 1, z = 0}
     end
-    if( p_Heading == 2) then
+    if( p_Heading == 2) then -- s
         return {x = 0, z = -1}
     end
-    if( p_Heading == 3) then
+    if( p_Heading == 3) then -- w
         return {x = -1, z = 0}
     end
     return false
@@ -38,6 +41,27 @@ function GetTowerPos( p_Index )
     local s_Pos = DATA["towers"][p_Index].pos
     return {x= s_Pos.x, y = s_Pos.y, z = s_Pos.z}
 end
+function GetSlotDirection(p_Slot)
+    return p_Slot % 4
+end
+function GetSlotHeading(p_Slot)
+    local s_Slot = p_Slot % 4
+    if(s_Slot == 0) then
+        return 2
+    end
+    if(s_Slot == 1) then
+        return 3
+    end
+    if(s_Slot == 2) then
+        return 0
+    end
+    if(s_Slot == 3) then
+        return 1
+    else
+        return 0
+    end
+end
+
 function GetXYZFromSlot( p_Tower, p_Slot)
     local s_Direction = (p_Slot % 4)
     local s_TowerPos = GetTowerPos(p_Tower)
@@ -58,23 +82,29 @@ end
 
 function GetFreeSlot( )
     for k,v in pairs(DATA["towers"]) do
-        if(v.freeSlot < v.slots) then
+        if(v.freeSlot + 1 <= v.slots) then
             return {tower = k, slot = v.freeSlot}
         end
     end
 end
 
 function RegisterSlot( p_Id, p_Tower, p_Slot )
-    DATA["towers"][p_Tower].occupants[p_Slot] = p_Id
+    DATA["towers"][p_Tower].occupants[p_Slot] = p_Id + 1
     DATA["towers"][p_Tower].freeSlot = DATA["towers"][p_Tower].freeSlot + 1
 end
 
 function OnAllocateDocking(p_Id, p_Message)
     local s_Id = p_Message.data.id
     local s_Slot = GetFreeSlot()
+    if(s_Slot == nil) then
+        print("No registered docking stations")
+        return false, "No registered docking stations"
+    end
     local s_DockingPos = GetXYZFromSlot(s_Slot.tower, s_Slot.slot)
+    local s_DockingHeading = GetSlotHeading(s_Slot.slot)
     RegisterSlot(p_Message.data.id, s_Slot.tower, s_Slot.slot)
-    DATA["occupants"][s_Id] = {tower = s_Slot.tower, slot = s_Slot.slot, pos = s_DockingPos}
+
+    DATA["occupants"][s_Id] = {tower = s_Slot.tower, slot = s_Slot.slot, pos = s_DockingPos, heading = s_DockingHeading}
 
     return true, DATA["occupants"][s_Id]
 end
@@ -128,7 +158,7 @@ function OnAddDockingTower(p_Id, p_Message)
     end
 
     local s_Tower = {
-        id = DATA["lastTower"],
+        id = DATA["nextTower"],
         name = p_Message.data.name,
         pos = p_Message.data.pos,
         height = p_Message.data.height,
@@ -137,8 +167,8 @@ function OnAddDockingTower(p_Id, p_Message)
         occupants = {}
     }
 
-    DATA["lastTower"] = DATA["lastTower"] + 1
     DATA["towers"][s_Tower.id] = s_Tower
+    DATA["nextTower"] = DATA["nextTower"] + 1
     DATA["nameLookup"][p_Message.data.name] = s_Tower.id
 
     print("Added Docking Tower")

@@ -1,177 +1,94 @@
---MapServer
+--DroneMan
 --Goal: Handle drones and their status
 
-local REDNET_TIMEOUT = 1
-local m_Data
-
---===== OPEN REDNET =====--
-for _, side in ipairs(redstone.getSides()) do
-    if peripheral.getType(side) == "modem" then
-        rednet.open(side)
-    end
-end
-
-if not rednet.isOpen() then
-    printError("could not open rednet")
-    return
-end
+local m_Monitor = peripheral.wrap("left")
 
 Log("Starting...")
-
---===== SET REDNET PROTOCOL =====--
-local POWNET_SERVER_PROTOCOL = "PowNet:Server"
-local POWNET_DRONE_PROTOCOL = "PowNet:Drone"
-local MAINFRAME_ID =  nil
-
-
-
---===== HOST AS SERVER =====--
-do
-    local host = rednet.lookup(POWNET_SERVER_PROTOCOL, "MapServer")
-    if host and host ~= os.computerID() then
-        printError("PowNet MapServer server already running?")
-        return
+--===== LOAD VFS =====--
+if not PowGPSServer then
+    if not os.loadAPI("PowGPSServer") then
+        return false, "could not load API: PowGPSServer"
     end
+else
+    print("yasy")
 end
 
-rednet.host(POWNET_SERVER_PROTOCOL, "MapServer")
-rednet.host(POWNET_DRONE_PROTOCOL, "MapServer")
+function Init()
+    PowGPSServer.loadAll()
+end
 
---===== UTILS =====--
-local MESSAGE_TYPE = {
-    GET = 0,
-    SET = 1,
-    INIT = 2,
-    REGISTER = 3,
-    UPDATE = 4
+function OnSaveWorld(p_ID, p_Message)
+    mergeData(p_Message.data)
+end
+
+function OnLoadWorld(p_ID, p_Message)
+    return true, DATA["world"]
+end
+
+function OnGetPath(p_ID, p_Message)
+    print(p_ID)
+    print("Get Path")
+    local x1 = p_Message.data[1]
+    local y1 = p_Message.data[2]
+    local z1 = p_Message.data[3]
+    local x2 = p_Message.data[4]
+    local y2 = p_Message.data[5]
+    local z2 = p_Message.data[6]
+    local discover = p_Message.data[7]
+    local priority =p_Message.data[8]
+    local s_Path = PowGPSServer.a_star(x1, y1, z1, x2, y2, z2, discover, priority)
+    -- TODO: prevent path blocking?
+    return true, {path = s_Path}
+end
+
+function OnUpdatePath(p_ID, p_Message)
+    print(p_Message.data)
+    print("lego")
+    print(#p_Message.data)
+    for k,v in pairs(p_Message.data) do
+        print(k)
+    end
+    PowGPSServer.UpdatePath(p_Message.data.path)
+    return true, true
+end
+local m_DroneEvents = {
+
 }
-local receivedMessages = {}
-local receivedMessageTimeouts = {}
 
-
-local function newMessage(messageType, dataKey, data)
-    return {
-        type = messageType,
-        ID = math.random(0, 2^30),
-        dataKey = dataKey,
-        data = data,
+local m_ServerEvents = {
+    UpdatePath = {
+        func = OnUpdatePath
+    },
+    SaveWorld = {
+        func = OnSaveWorld
+    },
+    LoadWorld = {
+        func = OnLoadWorld
+    },
+    GetPath = {
+        func = OnGetPath
     }
-end
+}
 
-
-local function sendAndWaitForResponse(recipientID, message, protocol)
-    rednet.send(recipientID, message, protocol)
-    local attemptNumber = 1
-    while true do
-        local senderID, reply = rednet.receive(protocol, REDNET_TIMEOUT)
-        if senderID == recipientID and type(reply) == "table" and reply.type == message.type and reply.ID == message.ID then
-            return reply.data
-        elseif not senderID then
-            if attemptNumber < 3 then
-                rednet.send(recipientID, message, protocol)
-                attemptNumber = attemptNumber + 1
-            else
-                return false
-            end
-        end
-    end
-end
-
-
---===== MAIN =====--
-local function main()
-    while true do
-        local serverID, serverMessage = rednet.receive(POWNET_SERVER_PROTOCOL)
-        if type(serverMessage) == "table" then
-            if(serverMessage.type == MESSAGE_TYPE.INIT and serverMessage.ID == 0) then
-                -- Reboot?
-                print("Server has been initialized. Rebooting and performing updates.")
-                os.reboot()
-            end
-        end
-
-        local droneID, droneMessage = rednet.receive(POWNET_DRONE_PROTOCOL)
-        if type(droneMessage) == "table" then
-
-        end
-    end
-end
-
---===== USER INTERFACE =====--
-local function control()
-    while true do
-        local event, key = os.pullEvent("key")
-        if key == keys.backspace then
-            break
-        end
-    end
-end
-
-function ApplyUpdate(p_Module, p_Path)
-    local s_Message = {
-        type = MESSAGE_TYPE.UPDATE,
-        ID = math.random(0, 2^30),
-        dataKey = p_Module,
-        data = false
-    }
-
-    print("Updating:  " .. p_Module)
-    local s_Response = sendAndWaitForResponse(MAINFRAME_ID, s_Message, POWNET_SERVER_PROTOCOL)
-    if not s_Response then
-        print("Failed to receive program: " .. p_Module)
-        return false
-    end
-    if(s_Response == "InvalidName") then
-        print("No module by this name: " .. p_Module)
-        return false
-    end
-
-    local file = fs.open(p_Path, "w")
-    file.write(s_Response)
-    file.close()
-end
-
-local function Connect()
-    print("Connecting to MainFrame...")
-    MAINFRAME_ID = rednet.lookup(POWNET_SERVER_PROTOCOL, "MAINFRAME")
-    if not MAINFRAME_ID then
-        printError("Unable to find mainframe")
-        return false
-    end
-
-    -- Initialize our data for faster lookup
-    print("Requesting data...")
-
-    local s_Message = newMessage(MESSAGE_TYPE.INIT, "MapServer")
-    local s_Response = sendAndWaitForResponse(MAINFRAME_ID, s_Message, POWNET_SERVER_PROTOCOL)
-    if s_Response then
-        m_Data = s_Response
-        print("Successfully updated data")
-        Log("Connected!", colors.green)
-        return true
-    else
-        error("Failed to fetch data")
-        return false
-    end
-end
-
-function UpdateStation()
-    -- Main
-    ApplyUpdate('libs/maps/remoteMap/remoteMap_Server.lua', '/remoteMap_Server.lua')
-    ApplyUpdate('libs/maps/compactMap.lua', '/compactMap')
+function Render()
+    print("Render!")
+    m_Monitor.clear()
+    m_Monitor.setCursorPos(1,1)
+    m_Monitor.setTextScale(0.5)
+    -- Header
+    m_Monitor.write("MapServer!")
+    local i = 1
 
 end
 
-function runNavServer()
-    shell.run("remoteMap_Server.lua map PowMap")
-end
 
-if Connect() then
-    UpdateStation()
-    print("Running!")
-    parallel.waitForAny(main, control, runNavServer)
-end
+Init()
+PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents, Render)
 
-rednet.unhost(POWNET_SERVER_PROTOCOL)
-rednet.unhost(POWNET_DRONE_PROTOCOL)
+SetStatus("Connected!", colors.green)
 
+Render()
+parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
+PowGPSServer.saveAll()
+print("Unhosting")
+rednet.unhost(PowNet.SERVER_PROTOCOL)

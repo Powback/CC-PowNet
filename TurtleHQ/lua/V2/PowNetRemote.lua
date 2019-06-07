@@ -60,13 +60,13 @@ function ResolveVars(p_Callable)
                     elseif tArgs[(i + 1) + l_param.length] ~= nil then
                         s_Vars[l_paramName] = {}
                         for argIndex = i + 1, l_param.length, 1 do
-                            s_Vars[l_paramName][argIndex] = tArgs[(i + 1) + argIndex]
+                            s_Vars[l_paramName][argIndex] = tArgs[(i + 1) + argIndex]:lower()
                         end
                     end
                 else
                     -- Single var
                     if( tArgs[i + 1] ~= nil) then
-                        s_Vars[l_paramName] = tArgs[i + 1]
+                        s_Vars[l_paramName] = tArgs[i + 1]:lower()
                     end
                 end
             end

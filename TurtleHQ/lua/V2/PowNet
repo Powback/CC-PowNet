@@ -67,7 +67,7 @@ function RegisterEvents( p_ServerEvents, p_DroneEvents, p_Update )
     m_Update = p_Update
 
     for k,v in pairs(p_ServerEvents) do
-        if(v.callable) then
+        if(type(v) == "table" and v.callable) then
             local s_Message = newMessage(PowNet.MESSAGE_TYPE.REGISTER, "RegisterCallable", {module = MODULENAME, name = k, params = v.params})
             PowNet.Send(MAINFRAME, s_Message, SERVER_PROTOCOL)
         end
@@ -110,22 +110,27 @@ function main()
         if type(serverMessage) == "table" then
             if(serverMessage.type == PowNet.MESSAGE_TYPE.INIT and serverMessage.ID == 0) then
                 print("Server has been initialized. Rebooting and performing updates.")
+                Save()
                 os.reboot()
             end
             if(m_ServerEvents[serverMessage.dataKey] ~= nil) then
                 print("Received: " .. serverMessage.dataKey)
-                if(m_ServerEvents[serverMessage.dataKey].func == nil) then
-                    print(serverMessage.dataKey .. " was found, but had no function")
+                local s_Result, s_Response
+                if(type(m_ServerEvents[serverMessage.dataKey]) == "function") then
+                   s_Result, s_Response = m_ServerEvents[serverMessage.dataKey](serverID, serverMessage)
+                elseif(type(m_ServerEvents[serverMessage.dataKey]) == "table") then
+                    s_Result, s_Response = m_ServerEvents[serverMessage.dataKey].func(serverID, serverMessage)
                 else
-                    local s_Result, s_Response = m_ServerEvents[serverMessage.dataKey].func(serverID, serverMessage)
-                    if(s_Result ~= nil) then
-                        serverMessage.status = s_Result
-                        serverMessage.data = s_Response
-                        rednet.send(serverID, serverMessage, SERVER_PROTOCOL)
-                    end
+                    print("Unknown drone message handle")
+                    return false
+                end
+                if(s_Result ~= nil) then
+                    serverMessage.status = s_Result
+                    serverMessage.data = s_Response
+                    rednet.send(serverID, serverMessage, SERVER_PROTOCOL)
                 end
             else
-                print("No event with the name: " .. serverMessage.dataKey)
+                print("No server event with the name: " .. serverMessage.dataKey)
             end
         end
         Update()
@@ -135,13 +140,30 @@ end
 function droneMain()
     while true do
         print("Waiting for Drone signal...")
-
         local droneID, droneMessage = rednet.receive(PowNet.DRONE_PROTOCOL)
         if type(droneMessage) == "table" then
+           --if(droneMessage.type == PowNet.MESSAGE_TYPE.INIT and droneID.ID == 0) then
+           --    print("Server has been initialized. Rebooting and performing updates.")
+           --    Save()
+           --    os.reboot()
+           --end
             if(m_DroneEvents[droneMessage.dataKey] ~= nil) then
-                local s_Response = m_DroneEvents[droneMessage.dataKey](droneID, droneMessage)
-                droneMessage.data = s_Response
-                rednet.send(droneID, droneMessage, DRONE_PROTOCOL)
+                print("Received: " .. droneMessage.dataKey)
+                if(type(m_DroneEvents[droneMessage.dataKey]) == "function") then
+                    local s_Result, s_Response = m_DroneEvents[droneMessage.dataKey](droneID, droneMessage)
+                elseif(type(m_DroneEvents[droneMessage.dataKey]) == "table") then
+                    local s_Result, s_Response = m_DroneEvents[droneMessage.dataKey].func(droneID, droneMessage)
+                else
+                    print("Unknown drone message handle")
+                    return false
+                end
+                if(s_Result ~= nil) then
+                    droneMessage.status = s_Result
+                    droneMessage.data = s_Response
+                    rednet.send(droneID, droneMessage, DRONE_PROTOCOL)
+                end
+            else
+                print("No drone event with the name: " .. droneMessage.dataKey)
             end
         end
         Update()
@@ -183,7 +205,7 @@ function sendAndWaitForResponse(p_Recipient, message, protocol)
     local attemptNumber = 1
     while true do
         local senderID, reply = rednet.receive(protocol, REDNET_TIMEOUT)
-        if senderID == s_RecipientID and type(reply) == "table" and reply.type == message.type and reply.ID == message.ID then
+        if senderID == s_RecipientID and reply.ID == message.ID then
             return reply.data
         elseif not senderID then
             if attemptNumber < 3 then
@@ -194,6 +216,12 @@ function sendAndWaitForResponse(p_Recipient, message, protocol)
             end
         end
     end
+end
+
+function Save()
+    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.SET, MODULENAME, DATA)
+    local s_Saved = PowNet.sendAndWaitForResponse(-1, s_Message, PowNet.SERVER_PROTOCOL)
+    print(s_Saved)
 end
 function dump(o)
     if(o == nil) then
