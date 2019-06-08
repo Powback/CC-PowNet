@@ -1,8 +1,14 @@
 local s_Label = os.getComputerLabel()
-if(s_Label == nil) then
-    print("No label set. Copying Startup Data.")
+if(s_Label == nil and fs.exists("disk/startup")) then
+    print("Copying Startup Data.")
+    fs.delete("/startup")
+    fs.delete("/PowNet")
     fs.copy("disk/startup", "/startup")
     fs.copy("disk/PowNet", "/PowNet")
+
+    if (s_Label == nil) then
+        print("Please set the label to the module you want")
+    end
     return
 end
 
@@ -51,11 +57,12 @@ SetStatus("Booting...")
 
 --MainFrame only
 if(s_Label == "MainFrame") then
-	shell.setDir("disk")
-	shell.run("MainFrame.lua")
+    shell.setDir("disk")
+    shell.run("MainFrame.lua")
     Log("Offline", colors.red)
     return
 end
+
 
 os.loadAPI("PowNet")
 local s_Started, s_Message = PowNet.InitServer()
@@ -65,6 +72,8 @@ if not s_Started then
     return
 end
 
+
+
 SetStatus("Connecting...")
 DATA = nil
 s_Connected, DATA = PowNet.Connect()
@@ -73,6 +82,13 @@ if not s_Connected then
     os.reboot()
 end
 SetStatus("Updating")
+
+--MapServer only
+if(s_Label == "MapServer") then
+    PowNet.UpdateModule("PowGPSServer.lua", "PowGPSServer")
+    print("Updated GPS server")
+end
+
 
 PowNet.UpdateModule("startup")
 PowNet.UpdateModule("PowNet")

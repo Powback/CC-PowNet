@@ -31,13 +31,10 @@ function RegisterDrone(p_ID, p_Pos, p_Heading)
         print("Failed to get docking")
         return false, "Failed to get docking"
     end
-    if(not type(s_Response) == "table") then
+    if(type(s_Response) ~= "table") then
         print("wtf")
-        print(s_Response)
+        return false, s_Response
     end
-    print("pos_:")
-    print(s_Response.pos)
-
     return true, {name = s_DroneName, go = s_Response.pos, heading = s_Response.heading}
 end
 

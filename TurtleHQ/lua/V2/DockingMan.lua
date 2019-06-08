@@ -140,8 +140,8 @@ function OnDelDockingTower(p_Id, p_Message)
     return true, {message = "Destroyed tower. ID: " .. s_Tower.id, id = s_Tower.id}
 end
 
+
 function OnAddDockingTower(p_Id, p_Message)
-    print("Yee to the haw")
     -- Fix defaults
     if(p_Message.data.gps ~= nil and p_Message.data.pos == nil) then
         p_Message.data.pos = p_Message.data.gps
@@ -212,16 +212,20 @@ local m_ServerEvents = {
         callable = true,
         params = {
             pos  ={
-                length = 0
+                length = 0,
+                optional = true
             },
             height  ={
-                length = 0
+                length = 0,
+                optional = true
             },
             free  ={
-                length = 0
+                length = 0,
+                optional = true
             },
             slots = {
-                length = 0
+                length = 0,
+                optional = true
             }
         },
         func = OnListDockingTowers

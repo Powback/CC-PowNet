@@ -29,21 +29,14 @@ function Init()
             print("Failed to call home.")
             return false
         end
-        if(not type(s_Response == "table")) then
-            print(s_Response)
-            return
+        if(type(s_Response) ~= "table") then
+            print("response: " .. s_Response)
+            return false
         end
         print(s_Response)
         os.setComputerLabel(s_Response.name)
         print("I am " .. s_Response.name .. ", and I am here to serve.")
-        print("Allfather give me sight!")
-        --local s_WorldRequestMessage = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "LoadWorld", {id = os.getComputerID()})
-        --local s_WorldRequestResponse = PowNet.sendAndWaitForResponse("MapServer", s_Message, PowNet.DRONE_PROTOCOL)
-        print(s_Response)
-        for k,v in pairs(s_Response) do
-            print(k)
-        end
-        print("^^^")
+
         if(s_Response.go) then
             print("Docking!")
             print(s_Response.go.x)

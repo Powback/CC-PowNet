@@ -10,7 +10,19 @@ function Init()
     end
 end
 
-function CreateTask(p_ID, p_Pos)
+
+function CreateTask(p_ID, p_Message)
+    -- Fix defaults
+    if(p_Message.data.name ~= nil) then
+        return false, "Missing name"
+    end
+    local s_Task = {
+        name = p_Message.data.name,
+        work = p_Message.data.work,
+        param = p_Message.data.param,
+        minWorkers = p_Message.data.minWorkers,
+        maxWorkers = p_Message.data.maxWorkers
+    }
 
 end
 
@@ -22,12 +34,12 @@ local m_ServerEvents = {
     CreateTask = {
         callable = true,
         params = {
-            "Name",
-            "Task",
-            "TaskParams",
-            "Priority",
-            "MinWorkers",
-            "MaxWorkers",
+            name = {},
+            work = {},
+            param = {},
+            priority = {},
+            minWorkers = {},
+            maxWorkers = {},
         },
         func = OnAddDockingTower
     }
