@@ -48,7 +48,6 @@ end
 function OnRegisterDrone(p_ID, p_Message)
     print("New Drone")
     local s_Result, s_Data = RegisterDrone(p_ID, p_Message.data.pos, p_Message)
-    print(s_Data)
     return true, s_Data
 end
 

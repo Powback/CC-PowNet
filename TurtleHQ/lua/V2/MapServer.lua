@@ -38,19 +38,26 @@ function OnGetPath(p_ID, p_Message)
     local priority =p_Message.data[8]
     local s_Path = PowGPSServer.a_star(x1, y1, z1, x2, y2, z2, discover, priority)
     -- TODO: prevent path blocking?
+    print(#s_Path)
     return true, {path = s_Path}
 end
 
 function OnUpdatePath(p_ID, p_Message)
-    print(p_Message.data)
-    print("lego")
-    print(#p_Message.data)
-    for k,v in pairs(p_Message.data) do
-        print(k)
-    end
     PowGPSServer.UpdatePath(p_Message.data.path)
     return true, true
 end
+
+function OnSetDronePos(p_ID, p_Message)
+    print(p_Message.data)
+    for k,v in pairs(p_Message.data.pos) do
+        print(k)
+        print(p_Message.data.pos[k])
+    end
+    local x,y,z = p_Message.data.pos.x,p_Message.data.pos.y,p_Message.data.pos.z
+    PowGPSServer.SetDronePos(x,y,z)
+    return true, true
+end
+
 local m_DroneEvents = {
 
 }
@@ -67,7 +74,10 @@ local m_ServerEvents = {
     },
     GetPath = {
         func = OnGetPath
-    }
+    },
+    SetDronePos = {
+        func = OnSetDronePos
+    },
 }
 
 function Render()

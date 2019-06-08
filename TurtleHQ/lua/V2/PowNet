@@ -115,14 +115,18 @@ function main()
             end
             if(m_ServerEvents[serverMessage.dataKey] ~= nil) then
                 print("Received: " .. serverMessage.dataKey)
+
                 local s_Result, s_Response
                 if(type(m_ServerEvents[serverMessage.dataKey]) == "function") then
                    s_Result, s_Response = m_ServerEvents[serverMessage.dataKey](serverID, serverMessage)
                 elseif(type(m_ServerEvents[serverMessage.dataKey]) == "table") then
-                    s_Result, s_Response = m_ServerEvents[serverMessage.dataKey].func(serverID, serverMessage)
+                    if(m_ServerEvents[serverMessage.dataKey].func == nil) then
+                        print("Event registered, but pointing to nothing")
+                    else
+                        s_Result, s_Response = m_ServerEvents[serverMessage.dataKey].func(serverID, serverMessage)
+                    end
                 else
                     print("Unknown drone message handle")
-                    return false
                 end
                 if(s_Result ~= nil) then
                     serverMessage.status = s_Result
@@ -155,7 +159,6 @@ function droneMain()
                     local s_Result, s_Response = m_DroneEvents[droneMessage.dataKey].func(droneID, droneMessage)
                 else
                     print("Unknown drone message handle")
-                    return false
                 end
                 if(s_Result ~= nil) then
                     droneMessage.status = s_Result

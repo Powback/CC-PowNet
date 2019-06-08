@@ -105,7 +105,10 @@ function OnAllocateDocking(p_Id, p_Message)
     RegisterSlot(p_Message.data.id, s_Slot.tower, s_Slot.slot)
 
     DATA["occupants"][s_Id] = {tower = s_Slot.tower, slot = s_Slot.slot, pos = s_DockingPos, heading = s_DockingHeading}
-
+    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "SetDronePos", {id = s_Id, pos = s_DockingPos})
+    local s_Response = PowNet.sendAndWaitForResponse("MapServer", s_Message, PowNet.SERVER_PROTOCOL)
+    print(s_Response)
+    -- Ignore the response, we just want to wait for it
     return true, DATA["occupants"][s_Id]
 end
 
@@ -146,12 +149,11 @@ function OnAddDockingTower(p_Id, p_Message)
     if(p_Message.data.gps ~= nil and p_Message.data.pos == nil) then
         p_Message.data.pos = p_Message.data.gps
     end
-    print(p_Message.data.pos)
     if(p_Message.data.height == nil) then
-        p_Message.data.height = 3
+        return false, "Missing height"
     end
     if (p_Message.data.pos == nil) then
-        return false, "Missing pos/height"
+        return false, "Missing pos"
     end
     if (p_Message.data.name == nil) then
         return false, "Missing name"
@@ -163,7 +165,7 @@ function OnAddDockingTower(p_Id, p_Message)
         pos = p_Message.data.pos,
         height = p_Message.data.height,
         freeSlot = 0,
-        slots = 11,
+        slots = height * 4,
         occupants = {}
     }
 

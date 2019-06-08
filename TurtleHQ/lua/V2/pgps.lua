@@ -137,6 +137,7 @@ function detectAll()
     cachedWorldDetail[(cachedX + D[1])..":"..(cachedY + D[2])..":"..(cachedZ + D[3])] = {turtle.inspectDown()}
 end
 
+
 ----------------------------------------
 -- forward
 --
@@ -346,9 +347,18 @@ function moveTo(_targetX, _targetY, _targetZ, _targetDir, changeDir, discover)
                 end
             end
         end
+
+        print(cachedX)
+        print(cachedY)
+        print(cachedZ)
     end
+
     if changeDir then
         turnTo(_targetDir)
+    end
+    local x,y,z = setLocationFromGPS()
+    if(x ~= _targetX or y ~= _targetY or z ~= _targetZ) then
+        return moveTo(cachedX ~= _targetX or cachedY ~= _targetY or cachedZ ~= _targetZ)
     end
     return true
 end

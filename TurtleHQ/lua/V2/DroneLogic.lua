@@ -5,10 +5,6 @@ local m_Status = "idle"
 
 
 print("I AM ALIVE!")
-pgps.startGPS()
-x,y,z = pgps.setLocationFromGPS()
-
-
 function Init()
     if(DATA["world"] == nil) then
         DATA["world"] = {}
@@ -16,6 +12,8 @@ function Init()
 
 
 
+    pgps.startGPS()
+    x,y,z = pgps.setLocationFromGPS()
     if(os.getComputerLabel() == nil) then
         print("Who am i...?")
         if(x == nil or y == nil or z == nil) then
@@ -63,10 +61,10 @@ end
 
 local m_DroneEvents = {
 
+
 }
 
 local m_ServerEvents = {
-
 }
 
 

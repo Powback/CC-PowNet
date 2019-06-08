@@ -430,6 +430,29 @@ function saveExclusions()
     setFile("exclusions", exclusions)
 end
 
+----------------------------------------
+-- setDronePos
+--
+-- function: save an drone Pos to cache
+-- input: exclusions coordinates
+-- returns: boolean "success"
+--
+
+function SetDronePos(idx, y, z)
+    local x
+
+    if y == nil and z == nil then
+        x = tonumber(string.match(idx, "(.*):"))
+        y = tonumber(string.match(idx, ":(.*):"))
+        z = tonumber(string.match(idx, ":(.*)"))
+    else
+        x = idx
+        idx = x..":"..y..":"..z
+    end
+    d = d or 0
+    cachedWorld[idx] = 2
+    return true
+end
 
 ----------------------------------------
 -- setExclusion
@@ -588,9 +611,11 @@ local function mergeData(newData)
         cachedWorld[k] = v
     end
 end
+
 function UpdatePath(newData)
     mergeData(newData)
 end
+
 function a_star(x1, y1, z1, x2, y2, z2, discover, priority)
     discover = discover or 1
     local start, idx_start = {x1, y1, z1}, x1..":"..y1..":"..z1
@@ -606,7 +631,8 @@ function a_star(x1, y1, z1, x2, y2, z2, discover, priority)
         return {}
     end
 
-    if (cachedWorld[idx_goal] or 0) == 0 then
+    -- If goal is empty, unknown or a turtle position
+    if (cachedWorld[idx_goal] == 2 or 0)then
         local openset, closedset, cameFrom, g_score, f_score, tries = {}, {}, {}, {}, {}, 0
 
         openset[idx_start] = start
@@ -628,6 +654,7 @@ function a_star(x1, y1, z1, x2, y2, z2, discover, priority)
 
             -- no more than 500 moves
             if cur_f >= stopAt then
+                print("max limit")
                 break
             end
 
@@ -640,9 +667,12 @@ function a_star(x1, y1, z1, x2, y2, z2, discover, priority)
                 local D = deltas[dir]
                 local x4, y4, z4 = x3 + D[1], y3 + D[2], z3 + D[3]
                 local neighbor, idx_neighbor = {x4, y4, z4}, x4..":"..y4..":"..z4
-                if (exclusions[idx_neighbor] == nil or priority) and (cachedWorld[idx_neighbor] or 0) == 0 then -- if its free or unknow and not on exclusion list
+                if (exclusions[idx_neighbor] == nil or priority) and (((cachedWorld[idx_neighbor] or 0) == 0 ) or idx_neighbor == idx_goal)then -- if its free or unknow and not on exclusion list
                     if closedset[idx_neighbor] == nil then -- if not closed
                         local tentative_g_score = g_score[idx_current] + ((cachedWorld[idx_neighbor] == nil) and discover or 1)
+                        if (cachedWorld[idx_neighbor] == 2) then
+                            tentative_g_score = tentative_g_score - 1
+                        end
                         --if block is undiscovered and there is a value for discover, it adds the discover value. else, it adds 1
                         if openset[idx_neighbor] == nil or tentative_g_score <= g_score[idx_neighbor] then -- tentative_g_score is always at least 1 more than g_score[idx_neighbor] T.T
                             --evaluates to if its not on the open list
