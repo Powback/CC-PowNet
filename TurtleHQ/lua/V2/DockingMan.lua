@@ -19,7 +19,6 @@ function Init()
         DATA["occupants"] = {}
     end
     North, West, East, South, Up, Down = 0, 1, 2, 3, 4, 5
-
 end
 
 function GetXZFromHeading( p_Heading )
