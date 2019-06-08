@@ -78,7 +78,7 @@ function drawMap(ox, oy, oz, block, empty, floor, none)
             end
         end
     end
-    drawTurtleOnMap(ox, oy, oz, cachedX, cachedY, cachedZ, cachedDir)
+    --drawTurtleOnMap(ox, oy, oz, cachedX, cachedY, cachedZ, cachedDir)
 end
 
 ----------------------------------------

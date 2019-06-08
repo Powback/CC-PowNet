@@ -81,14 +81,9 @@ local m_ServerEvents = {
 }
 
 function Render()
-    print("Render!")
-    m_Monitor.clear()
-    m_Monitor.setCursorPos(1,1)
-    m_Monitor.setTextScale(0.5)
-    -- Header
-    m_Monitor.write("MapServer!")
-    local i = 1
 
+    print("Render!")
+    PowGPSServer.drawMap()
 end
 
 

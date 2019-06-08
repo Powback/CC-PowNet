@@ -347,10 +347,6 @@ function moveTo(_targetX, _targetY, _targetZ, _targetDir, changeDir, discover)
                 end
             end
         end
-
-        print(cachedX)
-        print(cachedY)
-        print(cachedZ)
     end
 
     if changeDir then

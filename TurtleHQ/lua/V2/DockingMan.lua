@@ -134,12 +134,14 @@ function OnDelDockingTower(p_Id, p_Message)
     if(DATA["towers"][s_ID] == nil) then
         return false, "Tower " .. s_ID .. " does not exist."
     end
-    for _,l_DroneID in DATA["towers"][s_ID].occupants do
+    local s_Tower = DATA["towers"][s_ID]
+    for _,l_DroneID in pairs(s_Tower.occupants) do
         local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "DroneHomeless", {id = l_DroneID})
         PowNet.send("DroneMan", s_Message)
     end
+    local name = tostring(s_Tower.name)
     DATA["towers"][s_ID] = nil
-    return true, {message = "Destroyed tower. ID: " .. s_Tower.id, id = s_Tower.id}
+    return true, {message = "Destroyed tower. ID: " .. s_ID .. ", name: " .. name, id = s_ID}
 end
 
 
@@ -159,7 +161,7 @@ function OnAddDockingTower(p_Id, p_Message)
     end
 
     local s_Tower = {
-        id = DATA["nextTower"],
+        id = tostring(DATA["nextTower"]),
         name = p_Message.data.name,
         pos = p_Message.data.pos,
         height = p_Message.data.height,
@@ -194,7 +196,7 @@ local m_DroneEvents = {
 }
 
 local m_ServerEvents = {
-    AddDockingTower = {
+    add = {
         callable = true,
         params = {
             name = {
@@ -209,7 +211,7 @@ local m_ServerEvents = {
         func = OnAddDockingTower
     },
 
-    DelDockingTower = {
+    rm = {
         callable = true,
         params = {
             id = {
@@ -218,7 +220,7 @@ local m_ServerEvents = {
         },
         func = OnDelDockingTower
     },
-    ListDockingTowers = {
+    ls = {
         callable = true,
         params = {
             pos  ={
@@ -240,7 +242,7 @@ local m_ServerEvents = {
         },
         func = OnListDockingTowers
     },
-    EditDockingTower = {
+    edit = {
         callable = true,
         params = {
             id = {
