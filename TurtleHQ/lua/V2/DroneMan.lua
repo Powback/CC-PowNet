@@ -42,6 +42,7 @@ function OnHeartbeat(p_ID, p_Message)
     for k,v in pairs(p_Message.data) do
         DATA["drones"][p_ID][k] = v
     end
+
     return true
 end
 
@@ -51,12 +52,63 @@ function OnRegisterDrone(p_ID, p_Message)
     return true, s_Data
 end
 
+function OnRestartDrones(p_ID, p_Message)
+    print("Restarting drones")
+    if(p_Message.range ~= nil) then
+
+    else
+
+    end
+
+    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "Reboot", {})
+    local s_Response = PowNet.SendToAllDrones(s_Message)
+    return true
+end
+
+function OnDockDrones(p_ID, p_Message)
+    print("Docking drones")
+    if(p_Message.range ~= nil) then
+
+    end
+    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "GetDockingPositions", {})
+    local s_Response = PowNet.SendToAllDrones(s_Message)
+
+
+    for k,v in pairs(DATA["drones"]) do
+
+    end
+
+
+    return true
+end
+
+
 local m_DroneEvents = {
-    Heartbeat = OnHeartbeat
+    Heartbeat = OnHeartbeat,
 }
 
 local m_ServerEvents = {
     RegisterDrone = OnRegisterDrone,
+    Heartbeat = OnHeartbeat,
+
+    RestartDrones = {
+        func = OnRestartDrones,
+        callable = true,
+        params = {
+            range = {
+                optional = true
+            }
+        }
+    },
+    DockDrones = {
+        func = OnDockDrones,
+        callable = true,
+        params = {
+            range = {
+                optional = true
+            }
+        }
+    }
 }
 
 function Render()
@@ -83,7 +135,7 @@ PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents, Render)
 SetStatus("Connected!", colors.green)
 
 Render()
-parallel.waitForAny(PowNet.main, PowNet.control)
+parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
 
 print("Unhosting")
 rednet.unhost(PowNet.SERVER_PROTOCOL)

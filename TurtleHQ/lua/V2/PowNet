@@ -109,9 +109,8 @@ function main()
         local serverID, serverMessage = rednet.receive(PowNet.SERVER_PROTOCOL)
         if type(serverMessage) == "table" then
             if(serverMessage.type == PowNet.MESSAGE_TYPE.INIT and serverMessage.ID == 0) then
-                print("Server has been initialized. Rebooting and performing updates.")
-                Save()
-                os.reboot()
+                print("Server has been re-initialized. Ending execution.")
+                return
             end
             if(m_ServerEvents[serverMessage.dataKey] ~= nil) then
                 print("Received: " .. serverMessage.dataKey)
@@ -134,7 +133,7 @@ function main()
                     rednet.send(serverID, serverMessage, SERVER_PROTOCOL)
                 end
             else
-                print("No server event with the name: " .. serverMessage.dataKey)
+                print("No server event with the name: " .. serverMessage.dataKey .. serverMessage.type)
             end
         end
         Update()
@@ -156,7 +155,12 @@ function droneMain()
                 if(type(m_DroneEvents[droneMessage.dataKey]) == "function") then
                     local s_Result, s_Response = m_DroneEvents[droneMessage.dataKey](droneID, droneMessage)
                 elseif(type(m_DroneEvents[droneMessage.dataKey]) == "table") then
-                    local s_Result, s_Response = m_DroneEvents[droneMessage.dataKey].func(droneID, droneMessage)
+                    print(m_DroneEvents[droneMessage.dataKey].func)
+                    if(m_DroneEvents[droneMessage.dataKey].func == nil) then
+                        print("Event registered, but pointing to nothing")
+                    else
+                        local s_Result, s_Response = m_DroneEvents[droneMessage.dataKey].func(droneID, droneMessage)
+                    end
                 else
                     print("Unknown drone message handle")
                 end
@@ -195,6 +199,10 @@ function SendToDrone(p_DroneID, p_Message)
     Send(p_DroneID, p_Message, SERVER_PROTOCOL)
     return true
 end
+function SendToAllDrones(p_Message)
+    rednet.broadcast(p_Message, DRONE_PROTOCOL)
+    return true
+end
 
 function sendAndWaitForResponse(p_Recipient, message, protocol)
     if(p_Recipient == -1) then
@@ -221,11 +229,6 @@ function sendAndWaitForResponse(p_Recipient, message, protocol)
     end
 end
 
-function Save()
-    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.SET, MODULENAME, DATA)
-    local s_Saved = PowNet.sendAndWaitForResponse(-1, s_Message, PowNet.SERVER_PROTOCOL)
-    print(s_Saved)
-end
 function dump(o)
     if(o == nil) then
         print("tried to load jack shit")

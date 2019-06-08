@@ -18,6 +18,7 @@ Log("Loading...")
 print("Starting MainFrame")
 rednet.host(PowNet.SERVER_PROTOCOL, "MAINFRAME")
 
+local m_Notified = false
 --===== UTILS =====--
 
 local receivedMessages = {}
@@ -44,13 +45,25 @@ local function clearOldMessages()
         end
     end
 end
+local function Connect()
+    -- Initialize our data for faster lookup
+    local s_Message = newMessage(PowNet.MESSAGE_TYPE.INIT, 0,"MAINFRAME")
+    rednet.broadcast(s_Message, PowNet.SERVER_PROTOCOL)
+    print("Dispatched server boot")
+    Log("Connected!", colors.green)
+end
+
+
 
 --===== MAIN =====--
 local function main()
     while true do
+        if(m_Notified == false) then
+            Connect()
+            m_Notified = true
+        end
         local senderID, message = rednet.receive(PowNet.SERVER_PROTOCOL)
         if type(message) == "table" then
-            print(message.dataKey)
             if message.type == PowNet.MESSAGE_TYPE.GET then
                 local data = VFS.getData(message.dataKey)
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.GET, message.ID, message.dataKey, data)
@@ -62,13 +75,15 @@ local function main()
                     if(message.data ~= nil ) then
                         VFS.setData(message.dataKey, message.data)
                         VFS.saveData(message.dataKey)
+                    else
+                        print("NO DATA")
                     end
                     receivedMessages[message.ID] = true
                     receivedMessageTimeouts[os.startTimer(15)] = message.ID
                 end
                 local replyMessage = newMessage(PowNet.MESSAGE_TYPE.SET, message.ID, message.dataKey, true)
                 rednet.send(senderID, replyMessage, PowNet.SERVER_PROTOCOL)
-
+                print("saved: " .. tostring(message.dataKey))
             elseif message.type == PowNet.MESSAGE_TYPE.INIT then
                 if(message.dataKey == nil) then
                     return
@@ -109,13 +124,6 @@ local function main()
 end
 
 
-local function Connect()
-    -- Initialize our data for faster lookup
-    local s_Message = newMessage(PowNet.MESSAGE_TYPE.INIT, 0,"MAINFRAME")
-    rednet.broadcast(s_Message, PowNet.SERVER_PROTOCOL)
-    print("Dispatched server boot")
-    Log("Connected!", colors.green)
-end
 
 Connect()
 parallel.waitForAny(main, clearOldMessages, PowNet.control)

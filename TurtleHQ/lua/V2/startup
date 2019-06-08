@@ -77,6 +77,7 @@ end
 SetStatus("Connecting...")
 DATA = nil
 s_Connected, DATA = PowNet.Connect()
+
 if not s_Connected then
     SetStatus("Offline!", colors.red)
     os.reboot()
@@ -99,10 +100,10 @@ SetStatus("Disconnected!", colors.red)
 --os.reboot()
 for k,v in pairs(DATA) do
     print(k)
-    print(tostring(v))
 end
 local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.SET, s_Label, DATA)
 local s_Saved = PowNet.sendAndWaitForResponse(-1, s_Message, PowNet.SERVER_PROTOCOL)
 print(s_Saved)
 print("EXITED")
-
+os.sleep(3)
+os.reboot()

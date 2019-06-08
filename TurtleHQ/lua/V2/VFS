@@ -2,15 +2,16 @@ local m_Data = {}
 
 function setData(p_Key, p_Data)
     if(m_Data[p_Key] == nil) then
-        error("Env not initialized: " .. p_Key)
-        return false
+        print("Env not initialized: " .. p_Key)
+        Init(p_Key)
     end
     m_Data[p_Key] = p_Data
+    print("set data: " .. p_Key)
     return true
 end
 function getData(p_Key)
     if(m_Data[p_Key] == nil) then
-        error("Key not found")
+        print("Key not found")
         return false
     end
     return m_Data[p_Key]

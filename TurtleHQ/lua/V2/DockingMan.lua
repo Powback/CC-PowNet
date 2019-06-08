@@ -164,7 +164,7 @@ function OnAddDockingTower(p_Id, p_Message)
         pos = p_Message.data.pos,
         height = p_Message.data.height,
         freeSlot = 0,
-        slots = height * 4,
+        slots = p_Message.data.height * 4,
         occupants = {}
     }
 
@@ -179,6 +179,15 @@ end
 
 function OnEditDockingTower(p_Id, p_Message)
 
+end
+
+function OnGetDockingPositions(p_ID, p_Message)
+    local s_Drones = {}
+    for towerID,tower in pairs (DATA["towers"]) do
+        for droneId,tower in pairs (DATA["towers"]) do
+
+        end
+    end
 end
 local m_DroneEvents = {
 
@@ -251,16 +260,22 @@ local m_ServerEvents = {
     },
 
     AllocateDocking = {
-        callable = true,
+        callable = false,
         params = {
             id = {
-
             },
             Tower = {
-
             }
         },
         func = OnAllocateDocking
+    },
+    GetDockingPositions = {
+        callable = false,
+        params = {
+            id = {
+            },
+        },
+        func = OnGetDockingPositions
     }
 }
 

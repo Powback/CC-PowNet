@@ -10,8 +10,6 @@ function Init()
         DATA["world"] = {}
     end
 
-
-
     pgps.startGPS()
     x,y,z = pgps.setLocationFromGPS()
     if(os.getComputerLabel() == nil) then
@@ -45,6 +43,8 @@ function Init()
             print(pgps.turnTo(s_Response.heading))
         end
     end
+
+    SendHeartBeat()
 end
 
 function SendHeartBeat()
@@ -56,20 +56,26 @@ function SendHeartBeat()
     end
     local s_Data = {pos = {x = x, y = y, z = z}, status = m_Status}
     local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "Heartbeat", s_Data)
-    PowNet.Send("DroneMan", s_Message, PowNet.DRONE_PROTOCOL)
+    PowNet.SendToServer("DroneMan", s_Message)
+    print("Sent heartbeat")
+end
+
+function OnReboot(p_ID, p_Message)
+    os.reboot()
 end
 
 local m_DroneEvents = {
-
-
+    Reboot = {
+        func = OnReboot,
+    }
 }
 
 local m_ServerEvents = {
-}
 
+}
 
 if Init() == false then
     return
 end
-PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents, Render)
+PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents)
 parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
