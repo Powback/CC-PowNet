@@ -19,7 +19,7 @@ end
 s_Connected, DATA = PowNet.Connect()
 
 PowNet.UpdateModule("PowNet")
-PowNet.UpdateModule("PowNetRemote.lua")
+PowNet.UpdateModule("PowNetRemote.lua", "pnr")
 
 function CallCallable(module, func, params)
     if(params == nil) then

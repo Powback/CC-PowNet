@@ -1,7 +1,7 @@
 --DroneMan
 --Goal: Handle drones and their status
 
-local m_Monitor = peripheral.wrap("left")
+local m_Monitor = peripheral.wrap("top")
 
 Log("Starting...")
 function Init()
@@ -70,18 +70,17 @@ function OnDockDrones(p_ID, p_Message)
     if(p_Message.range ~= nil) then
 
     end
-    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "GetDockingPositions", {})
-    local s_Response = PowNet.SendToAllDrones(s_Message)
-
-
-    for k,v in pairs(DATA["drones"]) do
-
+    local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "GetDroneInfo", {})
+    local s_Response = PowNet.Send("DockingMan", s_Message)
+    if(type(s_Response) == "table") then
+        for k,v in pairs(s_Response.drones) do
+            local s_Message = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "GoTo", {pos = v.pos, heading = v.heading})
+            local s_Response = PowNet.SendToDrone(k, s_Message)
+        end
     end
-
 
     return true
 end
-
 
 local m_DroneEvents = {
     Heartbeat = OnHeartbeat,
@@ -108,6 +107,18 @@ local m_ServerEvents = {
                 optional = true
             }
         }
+    },
+    GoTo = {
+        func = OnGoTo,
+        callable = true,
+        params = {
+            id = {
+                optional = true
+            },
+            range = {
+                optional = true
+            }
+        }
     }
 }
 
@@ -119,12 +130,23 @@ function Render()
     -- Header
     m_Monitor.write("DroneMan!")
     local i = 1
+    local left = true
     for k,v in pairs(DATA["drones"]) do
         local s_Turtle = DATA["drones"][k]
-        i = i + 1
-        m_Monitor.setCursorPos(1,i)
+        if(left) then
+            m_Monitor.setCursorPos(1,i)
+            left = false
+        else
+            m_Monitor.setCursorPos(45,i)
+            left = true
+            i = i + 1
+        end
+        local s_Fuel = s_Turtle.fuel
+        if s_Fuel == nil then
+            s_Fuel = "?"
+        end
+        m_Monitor.write("[" .. s_Turtle.name .. "] | " .. s_Turtle.status .." | " .. s_Fuel .. " - (" .. s_Turtle.pos.x .. ", " .. s_Turtle.pos.y .. ", " .. s_Turtle.pos.z ..")")
 
-        m_Monitor.write("[" .. s_Turtle.name .. "] | " .. s_Turtle.status .." | (" .. s_Turtle.pos.x .. ", " .. s_Turtle.pos.y .. ", " .. s_Turtle.pos.z ..")")
     end
 end
 

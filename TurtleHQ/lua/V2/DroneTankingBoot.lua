@@ -8,7 +8,7 @@ print("Initializing Drone...")
 
 shell.run('copy /disk/droneData/* /*')
 while(turtle.getFuelLevel() == 0) do
-    turtle.suckDown(1)
+    turtle.suckDown(5)
     turtle.refuel()
 end
 print("Done copying! Rebooting.")

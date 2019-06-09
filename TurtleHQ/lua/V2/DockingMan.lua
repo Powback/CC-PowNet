@@ -183,14 +183,10 @@ function OnEditDockingTower(p_Id, p_Message)
 
 end
 
-function OnGetDockingPositions(p_ID, p_Message)
-    local s_Drones = {}
-    for towerID,tower in pairs (DATA["towers"]) do
-        for droneId,tower in pairs (DATA["towers"]) do
-
-        end
-    end
+function OnGetDroneInfo(p_ID, p_Message)
+    return true, {drones = DATA["occupants"]}
 end
+
 local m_DroneEvents = {
 
 }
@@ -271,13 +267,13 @@ local m_ServerEvents = {
         },
         func = OnAllocateDocking
     },
-    GetDockingPositions = {
+    GetDroneInfo = {
         callable = false,
         params = {
             id = {
             },
         },
-        func = OnGetDockingPositions
+        func = OnGetDroneInfo
     }
 }
 
