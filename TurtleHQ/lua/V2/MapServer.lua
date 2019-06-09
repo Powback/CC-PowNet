@@ -37,13 +37,16 @@ function OnGetPath(p_ID, p_Message)
     local discover = p_Message.data[7]
     local priority =p_Message.data[8]
     local s_Path = PowGPSServer.a_star(x1, y1, z1, x2, y2, z2, discover, priority)
-    -- TODO: prevent path blocking?
+    if(s_Path == false) then
+        return false, {message = "failed to find path"}
+    end
     print(#s_Path)
     return true, {path = s_Path}
 end
 
 function OnUpdatePath(p_ID, p_Message)
-    PowGPSServer.UpdatePath(p_Message.data.path)
+    PowGPSServer.UpdateCachedWorld(p_Message.data.cachedWorld, p_ID)
+    PowGPSServer.UpdateCachedWorldDetail(p_Message.data.cachedWorldDetail, p_ID)
     return true, true
 end
 
@@ -83,7 +86,7 @@ local m_ServerEvents = {
 function Render()
 
     print("Render!")
-    PowGPSServer.drawMap()
+    --PowGPSServer.drawMap()
 end
 
 

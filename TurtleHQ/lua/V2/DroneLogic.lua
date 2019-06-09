@@ -2,9 +2,18 @@
 os.loadAPI("pgps")
 local x,y,z
 local m_Status = "idle"
-
+local executing = false
 
 print("I AM ALIVE!")
+
+function TaskStart()
+    executing = true
+end
+function TaskEnd()
+    executing = false
+    pgps.StartExec() -- Task has ended, allow force allow execution agian.
+end
+
 function Init()
     if(DATA["world"] == nil) then
         DATA["world"] = {}
@@ -68,18 +77,41 @@ end
 function OnReboot(p_ID, p_Message)
     os.reboot()
 end
+
 function OnGoTo(p_ID, p_Message)
+    print(os.time())
     x,y,z = pgps.setLocationFromGPS()
     if(p_Message.data.pos == nil) then
         print("No pos specified")
-    else
-        print(pgps.moveTo(p_Message.data.pos.x, p_Message.data.pos.y, p_Message.data.pos.z))
+        return
+    end
+    m_Status = "moving"
+
+    TaskStart()
+    local s_Status, s_message = pgps.moveTo(p_Message.data.pos.x, p_Message.data.pos.y, p_Message.data.pos.z)
+    TaskEnd()
+    m_Status = "idle"
+    if(s_Status == false) then
+        print("Failed to move to position")
+        return false, "Failed to move to position"
     end
     if(p_Message.data.heading == nil) then
         print("No heading specified")
     else
+        m_Status = "rotation"
         print(pgps.turnTo(p_Message.data.heading))
+        m_Status = "idle"
     end
+end
+
+
+function OnAbort()
+    if(not executing) then
+        return false
+    end
+    print("Aborting...")
+    pgps.BreakExec()
+    return true, "Aborted"
 end
 
 local m_DroneEvents = {
@@ -91,8 +123,11 @@ local m_DroneEvents = {
     }
 }
 
-local m_ServerEvents = {
 
+local m_ServerEvents = {
+    Abort = {
+        func = OnAbort,
+    }
 }
 
 if Init() == false then

@@ -11,6 +11,8 @@ cachedWorld = {}
 -- cached wrld with block names
 cachedWorldDetail = {}
 
+aged = {}
+
 
 -- A* parameters
 local stopAt, nilCost = 1500, 1000
@@ -598,6 +600,70 @@ local function reconstruct_path(_cameFrom, _currentNode)
     end
 end
 
+
+local function isAged(p_Day, p_Time)
+    if(os.day() > p_Day) then
+        return true
+    end
+    if(os.time() > p_Time + 1) then
+        print(os.time())
+        print(p_Time)
+
+        return true
+    end
+    return false
+end
+
+
+local function mergeCachedWorldDetail(newData, p_ID)
+    for k,v in pairs(newData) do
+        if(cachedWorldDetail[k] == nil) then
+            cachedWorldDetail[k] = {}
+            cachedWorldDetail[k].discoverer = p_ID
+            cachedWorldDetail[k].discovered = {day = os.day(), time = os.time()}
+        end
+        cachedWorldDetail[k].lastUpdated = {day = os.day(), time = os.time()}
+        cachedWorldDetail[k].data = v
+
+        if(type(v[2]) == table) then
+            if(v[2].name == "ComputerCraft:CC-TurtleAdvanced" or "ComputerCraft:CC-Turtle") then
+                table.insert(aged, {coords = k, lastUpdated = cachedWorldDetail[k].lastUpdated})
+            end
+        end
+    end
+end
+
+local function mergeCachedWorld(newData)
+    for k,v in pairs(newData) do
+        cachedWorld[k] = v
+    end
+end
+
+function UpdateCachedWorld(newData, p_ID)
+    mergeCachedWorld(newData, p_ID)
+end
+function UpdateCachedWorldDetail(newData, p_ID)
+    mergeCachedWorldDetail(newData, p_ID)
+end
+
+-- CachedWorldDetail is our primary resource for the actual state of the world.
+-- CachedWorld is the stuff we use for pathfinding.
+function ClearAged()
+    local s_Aged = {}
+    for k,v in pairs(aged) do
+        print(k)
+        if(isAged(v.lastUpdated.day, v.lastUpdated.time)) then
+            print("cleared as too old")
+            cachedWorld[k] = nil
+            table.insert(s_Aged, k)
+        end
+    end
+
+    for k,v in pairs(s_Aged) do
+        aged[k] = nil
+    end
+end
+
 ----------------------------------------
 -- a_star
 --
@@ -605,16 +671,6 @@ end
 -- input: start and goal coordinates
 -- return: List of movement to be executed
 --
-
-local function mergeData(newData)
-    for k,v in pairs(newData) do
-        cachedWorld[k] = v
-    end
-end
-
-function UpdatePath(newData)
-    mergeData(newData)
-end
 
 function a_star(x1, y1, z1, x2, y2, z2, discover, priority)
     discover = discover or 1
@@ -687,7 +743,7 @@ function a_star(x1, y1, z1, x2, y2, z2, discover, priority)
         end
     end
     print("no path found")
-    return {}
+    return false
 end
 
 ----------------------------------------

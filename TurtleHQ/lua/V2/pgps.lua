@@ -289,7 +289,12 @@ function clearWorld()
     detectAll()
 end
 
-
+function BreakExec()
+    breakExec = true
+end
+function StartExec()
+    breakExec = false
+end
 -- moveTo
 --
 -- function: Move the turtle to the choosen coordinates in the world
@@ -299,7 +304,7 @@ end
 
 function SavePath()
 
-    local s_Request = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "UpdatePath", {id = os.getComputerID(), path = cachedWorld})
+    local s_Request = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "UpdatePath", {id = os.getComputerID(), cachedWorld = cachedWorld, cachedWorldDetail = cachedWorldDetail})
     local s_Response = PowNet.sendAndWaitForResponse("MapServer", s_Request)
     cachedWorld = {}
 end
@@ -311,12 +316,12 @@ function moveTo(_targetX, _targetY, _targetZ, _targetDir, changeDir, discover)
         local s_Request = PowNet.newMessage(PowNet.MESSAGE_TYPE.CALL, "GetPath", {cachedX, cachedY, cachedZ, _targetX, _targetY, _targetZ, discover})
         local s_Response = PowNet.sendAndWaitForResponse("MapServer", s_Request)
         if (not s_Response) then
-            print("Failed to get direction")
+            print("Failed to get path")
             print(s_Response)
             return false
         end
-        if( not s_Response ) then
-            print("No data")
+        if(type(s_Response) == "table" and s_Response.message ~= nil) then
+            print(s_Response.message)
             return false
         end
         local path = s_Response.path
@@ -329,6 +334,11 @@ function moveTo(_targetX, _targetY, _targetZ, _targetDir, changeDir, discover)
         --]]
         --print(textutils.serialize(table))
         for i, dir in ipairs(path) do
+            if(breakExec) then
+                breakExec = false
+                print("Stopped exec")
+                return false, "aborted"
+            end
             if dir == Up then
                 if not up() then
                     SavePath()
@@ -354,7 +364,7 @@ function moveTo(_targetX, _targetY, _targetZ, _targetDir, changeDir, discover)
     end
     local x,y,z = setLocationFromGPS()
     if(x ~= _targetX or y ~= _targetY or z ~= _targetZ) then
-        return moveTo(cachedX ~= _targetX or cachedY ~= _targetY or cachedZ ~= _targetZ)
+        return false
     end
     return true
 end
@@ -448,6 +458,10 @@ function setLocationFromGPS()
 
         -- determine the current direction
         for tries = 0, 3 do  -- try to move in one direction
+            if(turtle.getFuelLevel() == 0) then
+                print("Out of fuel")
+                return
+            end
             if turtle.forward() then
                 local newX, _, newZ = gps.locate(4, false) -- get the new position
                 turtle.back()              -- and go back
@@ -495,11 +509,7 @@ function setLocationFromGPS()
         return cachedX, cachedY, cachedZ, cachedDir
     else
         print("no GPS signal")
-        if isLama then
-
-        else
-            return false
-        end
+        return false
     end
 end
 

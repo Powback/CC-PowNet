@@ -19,7 +19,7 @@ end
 s_Connected, DATA = PowNet.Connect()
 
 PowNet.UpdateModule("PowNet")
-PowNet.UpdateModule("PowNetRemote.lua", "pnr")
+PowNet.UpdateModule("PowNetRemote.lua", "p")
 
 function CallCallable(module, func, params)
     if(params == nil) then
@@ -53,14 +53,15 @@ function ResolveVars(p_Callable)
         for i,value in pairs(tArgs) do
             if value:lower() == "-"..l_paramName:lower() then
                 -- Param has a length of 1
-                if(l_param.length ~= nil) then
+
+                if(l_param.length ~= nil and l_param.length ~= 1) then
                     -- Flag
                     if(l_param.length == 0) then
                         s_Vars[l_paramName] = true
-                    elseif tArgs[(i + 1) + l_param.length] ~= nil then
+                    elseif tArgs[i + l_param.length] ~= nil then
                         s_Vars[l_paramName] = {}
-                        for argIndex = i + 1, l_param.length, 1 do
-                            s_Vars[l_paramName][argIndex] = tArgs[(i + 1) + argIndex]:lower()
+                        for argIndex = 1, l_param.length, 1 do
+                            s_Vars[l_paramName][argIndex] = tArgs[i + argIndex]:lower()
                         end
                     end
                 else

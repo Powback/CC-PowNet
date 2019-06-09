@@ -187,17 +187,21 @@ function Send(p_Recipient, p_Message, p_Protocol)
         end
     end
     rednet.send(s_RecipientID, p_Message, p_Protocol)
-    return s_RecipientID
+    return true, s_RecipientID
 end
 
-function SendToServer(p_ServerName, p_Message)
-    Send(p_ServerName, p_Message, SERVER_PROTOCOL)
-    return true
+function SendToServer(p_ServerName, p_Message, p_Protocol)
+    if(p_Protocol == nil) then
+        p_Protocol = SERVER_PROTOCOL
+    end
+    return Send(p_ServerName, p_Message, p_Protocol)
 end
 
-function SendToDrone(p_DroneID, p_Message)
-    Send(p_DroneID, p_Message, SERVER_PROTOCOL)
-    return true
+function SendToDrone(p_DroneID, p_Message, p_Protocol)
+    if(p_Protocol == nil) then
+        p_Protocol = DRONE_PROTOCOL
+    end
+    return Send(p_DroneID, p_Message, p_Protocol)
 end
 function SendToAllDrones(p_Message)
     rednet.broadcast(p_Message, DRONE_PROTOCOL)
@@ -212,7 +216,10 @@ function sendAndWaitForResponse(p_Recipient, message, protocol)
         protocol = SERVER_PROTOCOL
     end
 
-    local s_RecipientID = Send(p_Recipient, message, protocol)
+    local s_Status, s_RecipientID = Send(p_Recipient, message, protocol)
+    if(s_Status == false) then
+        return false, "Failed to send message"
+    end
     local attemptNumber = 1
     while true do
         local senderID, reply = rednet.receive(protocol, REDNET_TIMEOUT)

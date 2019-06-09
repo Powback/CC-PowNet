@@ -1,7 +1,7 @@
 --DroneMan
 --Goal: Handle drones and their status
 
-local m_Monitor = peripheral.wrap("left")
+local m_Monitor = peripheral.wrap("top")
 
 
 Log("Starting...")
@@ -88,7 +88,7 @@ function GetFreeSlot( )
 end
 
 function RegisterSlot( p_Id, p_Tower, p_Slot )
-    DATA["towers"][p_Tower].occupants[p_Slot] = p_Id + 1
+    DATA["towers"][p_Tower].occupants[tostring(p_Slot)] = tostring(p_Id)
     DATA["towers"][p_Tower].freeSlot = DATA["towers"][p_Tower].freeSlot + 1
 end
 
@@ -288,7 +288,7 @@ function Render()
     for k,v in pairs(DATA["towers"]) do
         i = i + 1
         m_Monitor.setCursorPos(1,i)
-        m_Monitor.write("[" .. v.id .. "] " .. v.name .. " - [" .. #v.occupants .. "/" .. v.slots .. "] -  " .. "("..v.pos.x .. ", " .. v.pos.y .. ", " .. v.pos.z .. ")")
+        m_Monitor.write("[" .. v.id .. "] " .. v.name .. " - [" .. v.freeSlot .. "/" .. v.slots .. "] -  " .. "("..v.pos.x .. ", " .. v.pos.y .. ", " .. v.pos.z .. ")")
     end
 end
 
