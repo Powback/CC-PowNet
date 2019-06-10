@@ -68,7 +68,7 @@ function RegisterEvents( p_ServerEvents, p_DroneEvents, p_Update )
 
     for k,v in pairs(p_ServerEvents) do
         if(type(v) == "table" and v.callable) then
-            local s_Message = newMessage(PowNet.MESSAGE_TYPE.REGISTER, "RegisterCallable", {module = MODULENAME, name = k, params = v.params})
+            local s_Message = newMessage(PowNet.MESSAGE_TYPE.REGISTER, "RegisterCallable", {module = MODULENAME, name = k, params = v.params, installer = v.installer or false})
             PowNet.Send(MAINFRAME, s_Message, SERVER_PROTOCOL)
         end
     end

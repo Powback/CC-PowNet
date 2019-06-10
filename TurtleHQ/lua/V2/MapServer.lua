@@ -21,10 +21,6 @@ function OnSaveWorld(p_ID, p_Message)
     mergeData(p_Message.data)
 end
 
-function OnLoadWorld(p_ID, p_Message)
-    return true, DATA["world"]
-end
-
 function OnGetPath(p_ID, p_Message)
     print(p_ID)
     print("Get Path")

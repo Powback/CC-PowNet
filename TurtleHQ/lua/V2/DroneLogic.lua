@@ -15,10 +15,6 @@ function TaskEnd()
 end
 
 function Init()
-    if(DATA["world"] == nil) then
-        DATA["world"] = {}
-    end
-
     pgps.startGPS()
     x,y,z = pgps.setLocationFromGPS()
     if(os.getComputerLabel() == nil) then
@@ -114,6 +110,17 @@ function OnAbort()
     return true, "Aborted"
 end
 
+
+function OnStartTask(p_ID, p_Message)
+
+end
+
+function OnAbortTask(p_ID, p_Message)
+
+end
+
+
+
 local m_DroneEvents = {
     Reboot = {
         func = OnReboot,
@@ -124,14 +131,22 @@ local m_DroneEvents = {
 }
 
 
-local m_ServerEvents = {
+local m_ServerEvents = { -- Runs on a different thread so that we can interrupt drones while they execute work on the Drone message thread.
     Abort = {
         func = OnAbort,
-    }
+    },
+    StartTask = {
+        func = OnStartTask
+    },
+    AbortTask = {
+        func = OnAbortTask
+    },
 }
 
 if Init() == false then
     return
 end
+
+
 PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents)
 parallel.waitForAny(PowNet.main, PowNet.droneMain, PowNet.control)
