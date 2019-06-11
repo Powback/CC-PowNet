@@ -26,11 +26,11 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec2(20,15);
-        let max = new Vec2(40,30);
+        let min = new Vec3(20,5,15);
+        let max = new Vec3(40,10, 30);
 
-        this.DrawRect(min.x, min.y);
-        this.DrawRect(max.x, max.y);
+        this.DrawRect(min.x, min.z);
+        this.DrawRect(max.x, max.z);
 
         this.ctx.fillStyle = 'green';
         let orientation = this.GetOrientation(min,max);
@@ -38,12 +38,14 @@ class Main {
     }
 
     GetOrientation(min,max) {
-        let distanceX = Math.abs(max.x - min.x);
+        let distanceX = Math.abs(max.x - min.z);
         let distanceY = Math.abs(max.y - min.y);
-        if(distanceX <= distanceY) {
+        let distanceZ = Math.abs(max.z - min.z);
+
+        if(distanceX <= distanceZ) {
             return "x"
         } else {
-            return "y"
+            return "z"
         }
         //TODO: Z
     }
@@ -60,35 +62,36 @@ class Main {
         let incrementZ = Math.floor(distanceZ / workerCount);
 
         let odd = false;
-        if(this.hasDecimal(distanceX / workerCount) || this.hasDecimal(distanceY / workerCount)) {
+        if(this.hasDecimal(distanceX / workerCount) || this.hasDecimal(distanceZ / workerCount)) {
             odd = true;
         }
 
         let workers = [];
         for (let i = 0; i < workerCount; i++ ) {
             let worker_X_start;
-            let worker_Y_start;
+            let worker_Z_start;
             let worker_X_end;
-            let worker_Y_end;
+            let worker_Z_end;
+
             if(orientation == "x") {
                 worker_X_start = min.x + (i * incrementX);
-                worker_Y_start = min.y;
+                worker_Z_start = min.z;
 
                 worker_X_end = min.x + (i + 1) * incrementX - 1;
-                worker_Y_end = max.y;
+                worker_Z_end = max.z;
             } else {
                 worker_X_start = min.x;
-                worker_Y_start = min.y + (i * incrementY);
+                worker_Z_start = min.z + (i * incrementZ);
 
                 worker_X_end = max.x;
-                worker_Y_end = min.y + (i + 1) * incrementY - 1;
+                worker_Z_end = min.z + (i + 1) * incrementZ - 1;
             }
 
-            this.DrawRect(worker_X_start, worker_Y_start);
-            this.DrawRect(worker_X_end, worker_Y_end);
+            this.DrawRect(worker_X_start, worker_Z_start);
+            this.DrawRect(worker_X_end, worker_Z_end);
             workers[i] = {
-                min: new Vec2(worker_X_start, worker_Y_start),
-                max: new Vec2(worker_X_end, worker_Y_end),
+                min: new Vec3(worker_X_start, min.z, worker_Z_start),
+                max: new Vec3(worker_X_end, min.z, worker_Z_end),
 
             };
         }
@@ -99,10 +102,10 @@ class Main {
     DrawWorkers (workers) {
         for (let i = 0; i < workers.length; i++) {
             let worker = workers[i];
-            this.DrawRect(worker.min.x, worker.min.y);
+            this.DrawRect(worker.min.x, worker.min.z);
             this.ctx.fillStyle = 'red';
 
-            this.DrawRect(worker.max.x, worker.max.y);
+            this.DrawRect(worker.max.x, worker.max.z);
             this.ctx.fillStyle = 'green';
         }
     }
@@ -113,18 +116,20 @@ class Main {
             let worker = workers[i];
             let distanceX = Math.abs(worker.max.x - worker.min.x);
             let distanceY = Math.abs(worker.max.y - worker.min.y);
+            let distanceZ = Math.abs(worker.max.z - worker.min.z);
+
             if(i === workers.length - 1 && odd === true) { // If this is the last worker
-                if(orientation == "x") {
+                if(orientation === "x") {
                     distanceX++;
                     worker.max.x++;
                 } else {
-                    distanceY++;
-                    worker.max.y++;
+                    distanceZ++;
+                    worker.max.z++;
                 }
             }
             let height = 6;
             let topBottom = false;
-            let startSpot = StartSpots.TL
+            let startSpot = StartSpots.BR;
 
             let rounds = height / 3;
 
@@ -135,24 +140,61 @@ class Main {
                 // We can't complete this run in one go
                 rounds = Math.floor(rounds) + 1
             }
-            for (let i = 0; i < rounds; i++) {
+            //for (let round = 0; round < rounds; round++) {
                 let safeZone = 0;
-                if(i === 0) {
+
+                //if(round === 0) {
                     safeZone = 2; // Make the drone dig out the 2 first rows first, so other drones can get to their spot.
-
-                    this.UpDown(worker, startSpot, distanceX, distanceY, orientation, safeZone);
-                    this.ZigZag(worker, startSpot, distanceX, distanceY, orientation, safeZone);
-                }
+              //  }
 
 
-                this.DrawRect(worker.max.x, worker.max.y);
-                this.ctx.fillStyle = 'green';
-            }
+
+                //if(safeZone !== 0) {
+                    this.UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
+                //}
+                //this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
+            //}
+
+
+            this.DrawRect(worker.max.x, worker.max.z);
+            this.ctx.fillStyle = 'green';
 
         }
     }
 
-    UpDown(worker, distanceX, distanceY, orientation, safeZone) {
+    GetNextPos(min,max,x,z,startSpot) {
+
+        if(startSpot === StartSpots.TK) {
+            return {
+                x: min.min.x + x,
+                z: min.min.z + z
+            };
+        }
+
+        if(startSpot === StartSpots.TR) {
+            return {
+                x: max.x - x,
+                z: min.z + z
+
+            };
+        }
+        if(startSpot === StartSpots.BL) {
+            return {
+                x: min.x + x,
+                z: max.z - z
+
+            };
+        }
+        if(startSpot === StartSpots.BR) {
+            return {
+                x: max.x - x,
+                z: max.z - z
+
+            };
+        }
+    }
+
+    UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone) {
         let step = 0;
 
         let aVal = safeZone;
@@ -160,40 +202,38 @@ class Main {
 
         // Flip a,b/x,y depending on optimal rotation.
 
-        if(orientation === "y") {
+        if(orientation === "z") {
             aVal = safeZone;
-            bVal = distanceY;
+            bVal = distanceZ;
         }
         let down = false; // me_irl
 
         for (let a = 0; a < aVal; a++) {
             for (let b = 0; b <= bVal; b++) {
-                this.ctx.fillStyle = '#FFFFFF' + step + '0';
+                this.ctx.fillStyle = '#FFFF' + step + '0';
                 step++;
                 let x = b;
-                let y = a;
-                if(orientation === "y") {
+                let z = a;
+                if(orientation === "z") {
                     x = a;
-                    y = b;
+                    z = b;
                 }
-                let nextPos = {
-                    x: worker.min.x + x,
-                    y: worker.min.y + y
-                };
-                if(down) {
-                    if(orientation === "y") {
+                let nextPos = this.GetNextPos(worker.min,worker.max,x,z,startSpot);
+
+/*                if(down) {
+                    if(orientation === "z") {
                         nextPos = {
                             x: worker.min.x + x,
-                            y: worker.max.y - y
+                            z: worker.max.z - z
                         };
                     }else if(orientation === "x") {
                         nextPos = {
                             x: worker.max.x - x,
-                            y: worker.min.y + y
+                            z: worker.min.z + z
                         };
                     }
-                }
-                this.DrawRect(nextPos.x, nextPos.y);
+                }*/
+                this.DrawRect(nextPos.x, nextPos.z);
             }
             if(down) {
                 down = false
@@ -202,49 +242,51 @@ class Main {
             }
         }
     }
-    ZigZag(worker, distanceX, distanceY, orientation, safeZone) {
+
+
+    ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone) {
         let down = false;
         let aVal = distanceX ;
-        let bVal = distanceY;
+        let bVal = distanceZ;
 
-        if(orientation === "y") {
-            aVal = distanceY;
+        if(orientation === "z") {
+            aVal = distanceZ;
             bVal = distanceX;
         }
         let step = 0;
 
         for (let a = 0; a <= aVal; a++) {
-            for (let b = 2; b <= bVal; b++) {
+            for (let b = safeZone; b <= bVal; b++) {
                 this.ctx.fillStyle = '#FFFFFF' + step + '0';
                 step++;
 
                 let x = a;
-                let y = b;
-                if(orientation === "y") {
+                let z = b;
+                if(orientation === "z") {
                     x = b;
-                    y = a;
+                    z = a;
                 }
                 let nextPos = {
                     x: worker.min.x + x,
-                    y: worker.min.y + y
+                    z: worker.min.z + z
                 };
                 if(down) {
-                    if(orientation === "y") {
+                    if(orientation === "z") {
                         nextPos = {
 
                             x: worker.max.x - (x - safeZone),
-                            y: worker.min.y + y
+                            z: worker.min.z + z
                         };
                     }else if(orientation === "x") {
                         nextPos = {
                             x: worker.min.x + x,
-                            y: worker.max.y - (y - safeZone)
+                            z: worker.max.z - (z - safeZone)
                         };
                     }
                 }
 
 
-                this.DrawRect(nextPos.x, nextPos.y);
+                this.DrawRect(nextPos.x, nextPos.z);
             }
             if(down) {
                 down = false
@@ -254,13 +296,14 @@ class Main {
         }
     }
 
-    getScaled(x,y) {
-        return new Vec2(x * this.step, y * this.step);
+
+    getScaled(x,y,z) {
+        return new Vec3(x * this.step, y * this.step,y * this.step);
     }
-    DrawRect(x,y) {
-        let pos = this.getScaled(x,y);
-        let scale = this.getScaled(1,1);
-        this.ctx.fillRect(pos.x, pos.y, scale.x, scale.y);
+    DrawRect(x,y,z) {
+        let pos = this.getScaled(x,y,z);
+        let scale = this.getScaled(1,1,1);
+        this.ctx.fillRect(pos.x, pos.z, scale.x, scale.z);
         return;
     }
     DrawGrid(w, h, step) {
@@ -294,9 +337,10 @@ var StartSpots = {
     BL: 3,
     BR: 4
 };
-class Vec2 {
-    constructor(x,y) {
+class Vec3 {
+    constructor(x,y, z) {
         this.x = x;
         this.y = y;
+        this.z = z;
     }
 }
