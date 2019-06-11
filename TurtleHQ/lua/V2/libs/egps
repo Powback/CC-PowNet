@@ -1155,54 +1155,56 @@ end
 -- return: current X, Y, Z and direction of the turtle (or false if it failed)
 --
 
-function setLocationFromGPS()
+function setLocationFromGPS(p_Direction)
   if startGPS() then
     -- get the current position
     cachedX, cachedY, cachedZ  = gps.locate(4, false)
     local d = cachedDir or nil
     cachedDir = nil
+    if(p_Direction) then
+        local d = cachedDir or nil
+        cachedDir = nil
+        -- determine the current direction
+        for tries = 0, 3 do  -- try to move in one direction
+              if turtle.forward() then
+                local newX, _, newZ = gps.locate(4, false) -- get the new position
+                turtle.back()              -- and go back
 
-    -- determine the current direction
-    for tries = 0, 3 do  -- try to move in one direction
-          if turtle.forward() then
-            local newX, _, newZ = gps.locate(4, false) -- get the new position
-            turtle.back()              -- and go back
+                -- deduce the curent direction
+                if newZ < cachedZ then
+                  cachedDir = North
+                  d = "north"
+                elseif newZ > cachedZ then
+                  cachedDir = South
+                  d = "south"
+                elseif newX < cachedX then
+                  cachedDir = West
+                  d = "west"
+                elseif newX > cachedX then
+                  cachedDir = East
+                  d = "east"
+                end
 
-            -- deduce the curent direction
-            if newZ < cachedZ then
-              cachedDir = North
-              d = "north"
-            elseif newZ > cachedZ then
-              cachedDir = South
-              d = "south"
-            elseif newX < cachedX then
-              cachedDir = West
-              d = "west"
-            elseif newX > cachedX then
-              cachedDir = East
-              d = "east"
-            end
+                -- Cancel out the tries
+                turnTo((cachedDir - tries + 4) % 4)
 
-            -- Cancel out the tries
-            turnTo((cachedDir - tries + 4) % 4)
+                -- exit the loop
+                break
 
-            -- exit the loop
-            break
+              else -- try in another direction
+                tries = tries + 1
+                turtle.turnLeft()
+              end
+        end
 
-          else -- try in another direction
-            tries = tries + 1
-            turtle.turnLeft()
+        if cachedDir == nil then
+          print("Could not determine direction")
+          if isLama then--TODO: put lama direction
+          else
+            return false
           end
+        end
     end
-
-    if cachedDir == nil then
-      print("Could not determine direction")
-      if isLama then--TODO: put lama direction
-      else
-        return false
-      end
-    end
-
 
     -- Return the current turtle position
     if isLama then

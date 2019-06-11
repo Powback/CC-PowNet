@@ -122,14 +122,36 @@ class Main {
                     worker.max.y++;
                 }
             }
+            let height = 6;
+            let topBottom = false;
+            let startSpot = StartSpots.TL
+
+            let rounds = height / 3;
+
+            if(rounds < 1) {
+                rounds = 1; // height is 1-3, we just need to go 1 round
+            }
+            if(this.hasDecimal(rounds)) {
+                // We can't complete this run in one go
+                rounds = Math.floor(rounds) + 1
+            }
+            for (let i = 0; i < rounds; i++) {
+                let safeZone = 0;
+                if(i === 0) {
+                    safeZone = 2; // Make the drone dig out the 2 first rows first, so other drones can get to their spot.
+
+                    this.UpDown(worker, startSpot, distanceX, distanceY, orientation, safeZone);
+                    this.ZigZag(worker, startSpot, distanceX, distanceY, orientation, safeZone);
+                }
 
 
-            this.UpDown(worker, distanceX, distanceY, orientation, 2);
-            this.ZigZag(worker, distanceX, distanceY, orientation, 2);
-            this.DrawRect(worker.max.x, worker.max.y);
-            this.ctx.fillStyle = 'green';
+                this.DrawRect(worker.max.x, worker.max.y);
+                this.ctx.fillStyle = 'green';
+            }
+
         }
     }
+
     UpDown(worker, distanceX, distanceY, orientation, safeZone) {
         let step = 0;
 
@@ -266,7 +288,12 @@ class Main {
         this.ctx.stroke();
     };
 }
-
+var StartSpots = {
+    TL: 1,
+    TR: 2,
+    BL: 3,
+    BR: 4
+};
 class Vec2 {
     constructor(x,y) {
         this.x = x;
