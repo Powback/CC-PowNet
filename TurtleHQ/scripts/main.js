@@ -1,49 +1,209 @@
-let snake = [  {x: 10, y: 0},  {x: 10, y: 11},  {x: 10, y: 12},  {x: 10, y: 13},  {x: 11, y: 14},];
 class Main {
     constructor() {
         this.canvas = null;
         this.ctx = null;
-        this.step = 10;
-        this.head = {};
-        this.snake = {};
+        this.step = 25;
         this.Init();
     }
 
     Init() {
         this.canvas = document.getElementById('renderer');
         this.ctx = this.canvas.getContext('2d');
-        let w = 2000;
-        let h = 2000;
+        let w = 500;
+        let h = 500;
 
         this.canvas.width  = w;
         this.canvas.height = h;
-        this.snake = snake;
         this.Draw();
+        this.DoLogic();
         this.DrawGrid(w,h,this.step);
-        let scope = this;
 
-        snake.forEach(scope.drawSnakePart.bind(this));
 
     }
-    advanceSnake() {
-        var dy = 1;
-        var dx = 1;
-
-        this.head = {x: snake[0].x + dx, y: snake[0].y + dy};
-        snake.unshift(this.head);
-        snake.pop();}
-
     Draw() {
-        this.DrawRect(5,5);
-        this.DrawRect(6,6);
-        this.DrawRect(100,6);
-        let scope = this;
+        this.ctx.fillStyle = 'white';
+
     }
-    drawSnakePart(snakePart) {
-        this.DrawRect(snakePart.x, snakePart.y);
+
+    DoLogic() {
+        let min = new Vec2(0,0);
+        let max = new Vec2(6,6);
+
+        this.DrawRect(min.x, min.y);
+        this.DrawRect(max.x, max.y);
+
+        this.ctx.fillStyle = 'green';
+        let orientation = this.GetOrientation(min,max);
+        this.GetStartStop(2, min, max, orientation)
+    }
+
+    GetOrientation(min,max) {
+        let distanceX = Math.abs(max.x - min.x);
+        let distanceY = Math.abs(max.y - min.y);
+        if(distanceX <= distanceY) {
+            return "x"
+        } else {
+            return "y"
+        }
+        //TODO: Z
+    }
+
+    GetStartStop(workerCount, min, max, orientation) {
+        let distanceX = Math.abs(max.x - min.x) + 1;
+        let distanceY = Math.abs(max.y - min.y) + 1;
+        let distanceZ = Math.abs(max.z - min.z) + 1;
+
+        let incrementX = distanceX / workerCount;
+        let incrementY = distanceY / workerCount;
+        let incrementZ = distanceZ / workerCount;
+        console.log(distanceX);
+
+
+        let workers = [];
+        for (let i = 0; i < workerCount; i++ ) {
+            let worker_X_start;
+            let worker_Y_start;
+            let worker_X_end;
+            let worker_Y_end;
+            if(orientation == "x") {
+                worker_X_start = min.x + (i * incrementX);
+                worker_Y_start = min.y;
+
+                worker_X_end = min.x + (i + 1) * incrementX - 1;
+                worker_Y_end = max.y;
+            } else {
+                worker_X_start = min.x;
+                worker_Y_start = min.y + (i * incrementY);
+
+                worker_X_end = max.x;
+                worker_Y_end = min.y + (i + 1) * incrementY - 1;
+            }
+
+            this.DrawRect(worker_X_start, worker_Y_start);
+            this.DrawRect(worker_X_end, worker_Y_end);
+            workers[i] = {
+                min: new Vec2(worker_X_start, worker_Y_start),
+                max: new Vec2(worker_X_end, worker_Y_end),
+
+            };
+        }
+        this.DrawWorkers(workers);
+        this.DoWork(workers, orientation)
+    }
+
+    DrawWorkers (workers) {
+        for (let i = 0; i < workers.length; i++) {
+            let worker = workers[i];
+            this.DrawRect(worker.min.x, worker.min.y);
+            this.ctx.fillStyle = 'red';
+
+            this.DrawRect(worker.max.x, worker.max.y);
+            this.ctx.fillStyle = 'green';
+        }
     }
 
 
+    DoWork(workers, orientation) {
+
+        for (let i = 0; i < workers.length; i++) {
+            let worker = workers[i];
+            let distanceX = Math.abs(worker.max.x - worker.min.x);
+            let distanceY = Math.abs(worker.max.y - worker.min.y);
+
+            let step = 0;
+
+            let aVal = 2;
+            let bVal = distanceX;
+
+
+            if(orientation === "y") {
+                aVal = distanceY;
+                bVal = 2;
+            }
+
+
+
+            let down = false; // me_irl
+
+            for (let a = 0; a < aVal; a++) {
+                for (let b = 0; b <= bVal; b++) {
+                    this.ctx.fillStyle = '#FFFFFF' + (9 - step) + '0';
+                    step++;
+                    let x = b;
+                    let y = a;
+                    if(orientation === "y") {
+                        x = a;
+                        y = b;
+                    }
+                    let nextPos = {
+                        x: worker.min.x + x,
+                        y: worker.min.y + y
+                    };
+                    if(down) {
+                        if(orientation === "y") {
+                            nextPos = {
+                                x: worker.min.x + x,
+                                y: worker.max.y - y
+                            };
+                        }else if(orientation === "x") {
+                            nextPos = {
+                                x: worker.max.x - x,
+                                y: worker.min.y + y
+                            };
+                        }
+                    }
+                    this.DrawRect(nextPos.x, nextPos.y);
+                }
+                if(down) {
+                    down = false
+                } else {
+                    down = true
+                }
+            }
+            for (let a = 0; a <= distanceX; a++) {
+                for (let b = 2; b <= distanceY; b++) {
+                    this.ctx.fillStyle = '#FFFFFF' + step + '0';
+                    step++;
+
+                    let x = a;
+                    let y = b;
+                    if(orientation === "y") {
+                        x = b;
+                        y = a;
+                    }
+                    let nextPos = {
+                        x: worker.min.x + x,
+                        y: worker.min.y + y
+                    };
+                    if(down) {
+                        if(orientation === "y") {
+                            nextPos = {
+                                x: worker.min.x + x,
+                                y: worker.max.y - y
+                            };
+                        }else if(orientation === "x") {
+                            nextPos = {
+                                x: worker.min.x + x,
+                                y: worker.max.y - (y - 2)
+                            };
+                        }
+                    }
+
+
+                    this.DrawRect(nextPos.x, nextPos.y);
+                }
+                if(down) {
+                    down = false
+                } else {
+                    down = true
+                }
+            }
+
+
+            this.DrawRect(worker.max.x, worker.max.y);
+            this.ctx.fillStyle = 'green';
+        }
+    }
 
     getScaled(x,y) {
         return new Vec2(x * this.step, y * this.step);
@@ -51,7 +211,8 @@ class Main {
     DrawRect(x,y) {
         let pos = this.getScaled(x,y);
         let scale = this.getScaled(1,1);
-        return this.ctx.fillRect(pos.x, pos.y, scale.x, scale.y);
+        this.ctx.fillRect(pos.x, pos.y, scale.x, scale.y);
+        return;
     }
     DrawGrid(w, h, step) {
         this.ctx.beginPath();
@@ -60,7 +221,7 @@ class Main {
             this.ctx.lineTo(x, h);
         }
         // set the color of the line
-        this.ctx.strokeStyle = 'rgb(20,0,0)';
+        this.ctx.strokeStyle = 'rgb(20,20,20)';
         this.ctx.lineWidth = 1;
         // the stroke will actually paint the current path
         this.ctx.stroke();

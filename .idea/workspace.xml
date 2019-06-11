@@ -44,11 +44,29 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="306">
               <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/scripts/main.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="476">
+              <caret line="28" column="30" selection-start-line="28" selection-start-column="30" selection-end-line="28" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TurtleHQ/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="374">
+              <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -58,24 +76,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="391">
               <caret line="23" selection-start-line="23" selection-end-line="25" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DroneLogic.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="816">
-              <caret line="48" column="42" selection-start-line="48" selection-start-column="42" selection-end-line="48" selection-end-column="42" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/DockingMan.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4930">
-              <caret line="290" column="77" selection-start-line="290" selection-start-column="77" selection-end-line="290" selection-end-column="77" />
             </state>
           </provider>
         </entry>
@@ -118,8 +118,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>unknown</find>
-      <find>sendAndWaitForResponse</find>
       <find>params</find>
       <find>s_TaskName</find>
       <find>while tru</find>
@@ -148,6 +146,8 @@
       <find>o</find>
       <find>m_Tasks</find>
       <find>Render</find>
+      <find>DrawGrid</find>
+      <find>let down</find>
     </findStrings>
     <replaceStrings>
       <replace>TANKSTATION</replace>
@@ -169,7 +169,6 @@
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/VFS.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/Log.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/Logger" />
-        <option value="$PROJECT_DIR$/TurtleHQ/index.html" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetCommon.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetCommon" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/libs/netNav/netNav.lua" />
@@ -195,6 +194,8 @@
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetRemote.lua" />
         <option value="$PROJECT_DIR$/TurtleHQ/lua/V2/TaskMan.lua" />
+        <option value="$PROJECT_DIR$/TurtleHQ/index.html" />
+        <option value="$PROJECT_DIR$/TurtleHQ/scripts/main.js" />
       </list>
     </option>
   </component>
@@ -235,6 +236,12 @@
               <item name="lua" type="462c0819:PsiDirectoryNode" />
               <item name="V2" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="PowNet" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PowNet" type="462c0819:PsiDirectoryNode" />
+              <item name="TurtleHQ" type="462c0819:PsiDirectoryNode" />
+              <item name="scripts" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -245,7 +252,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1560196749848" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1560229959659" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
@@ -280,12 +287,12 @@
       <workItem from="1559571376716" duration="329000" />
       <workItem from="1559571763133" duration="59760000" />
       <workItem from="1559930039688" duration="82820000" />
-      <workItem from="1560128074908" duration="10578000" />
+      <workItem from="1560128074908" duration="20616000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="153487000" />
+    <option name="totallyTimeSpent" value="163525000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
@@ -326,7 +333,6 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/Logger" />
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/location.lua" />
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/pQueue.lua" />
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/aStar.lua" />
@@ -360,13 +366,6 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/libs/mapServer" />
-    <entry file="file://$PROJECT_DIR$/TurtleHQ/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1116">
-          <caret line="129" lean-forward="true" selection-start-line="129" selection-end-line="129" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/PowNetCommon.lua" />
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/V2/PowNet.lua" />
     <entry file="file://$PROJECT_DIR$/TurtleHQ/lua/pownetcommon.lua">
@@ -571,6 +570,20 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TurtleHQ/scripts/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="28" column="30" selection-start-line="28" selection-start-column="30" selection-end-line="28" selection-end-column="30" />
         </state>
       </provider>
     </entry>
