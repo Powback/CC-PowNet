@@ -26,8 +26,8 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec3(20,5,15);
-        let max = new Vec3(40,10, 30);
+        let min = new Vec3(10,5,10);
+        let max = new Vec3(20,10, 20);
 
         this.DrawRect(min.x, min.z);
         this.DrawRect(max.x, max.z);
@@ -80,6 +80,7 @@ class Main {
                 worker_X_end = min.x + (i + 1) * incrementX - 1;
                 worker_Z_end = max.z;
             } else {
+
                 worker_X_start = min.x;
                 worker_Z_start = min.z + (i * incrementZ);
 
@@ -152,47 +153,142 @@ class Main {
                 //if(safeZone !== 0) {
                     this.UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
                 //}
-                //this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
+                this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
             //}
 
 
-            this.DrawRect(worker.max.x, worker.max.z);
             this.ctx.fillStyle = 'green';
 
         }
     }
 
-    GetNextPos(min,max,x,z,startSpot) {
+    // What the fuck is this algo
+    GetNextPos(min,max,x,z,startSpot, orientation, inverted) {
+        if(orientation === "x") {
+            if (inverted) {
+                if (startSpot === StartSpots.TL) {
+                    return {
+                        x: max.x - x,
+                        z: min.z + z
+                    };
+                }
 
-        if(startSpot === StartSpots.TK) {
-            return {
-                x: min.min.x + x,
-                z: min.min.z + z
-            };
+                if (startSpot === StartSpots.TR) {
+                    return {
+                        x: min.x + x,
+                        z: min.z + z
+
+                    };
+                }
+                if (startSpot === StartSpots.BL) {
+                    return {
+                        x: max.x - x,
+                        z: max.z - z
+
+                    };
+                }
+                if (startSpot === StartSpots.BR) {
+                    return {
+                        x: min.x + x,
+                        z: max.z - z
+
+                    };
+                }
+            }
+            //
+            if (startSpot === StartSpots.TL) {
+                return {
+                    x: min.x + x,
+                    z: min.z + z
+                };
+            }
+
+            if (startSpot === StartSpots.TR) {
+                return {
+                    x: max.x - x,
+                    z: min.z + z
+
+                };
+            }
+            if (startSpot === StartSpots.BL) {
+                return {
+                    x: min.x + x,
+                    z: max.z - z
+
+                };
+            }
+            if (startSpot === StartSpots.BR) {
+                return {
+                    x: max.x - x,
+                    z: max.z - z
+
+                };
+            }
         }
+        if(orientation === "z") {
 
-        if(startSpot === StartSpots.TR) {
-            return {
-                x: max.x - x,
-                z: min.z + z
+            if (inverted) {
+                if (startSpot === StartSpots.TL) {
+                    return {
+                        x: min.x + x,
+                        z: max.z - z
+                    };
+                }
 
-            };
-        }
-        if(startSpot === StartSpots.BL) {
-            return {
-                x: min.x + x,
-                z: max.z - z
+                if (startSpot === StartSpots.TR) {
+                    return {
+                        x: max.x - x,
+                        z: max.z - z
 
-            };
-        }
-        if(startSpot === StartSpots.BR) {
-            return {
-                x: max.x - x,
-                z: max.z - z
+                    };
+                }
+                if (startSpot === StartSpots.BL) {
+                    return {
+                        x: min.x + x,
+                        z: min.z + z
 
-            };
+                    };
+                }
+                if (startSpot === StartSpots.BR) {
+                    return {
+                        x: max.x - x,
+                        z: min.z + z
+
+                    };
+                }
+            }
+            //
+            if (startSpot === StartSpots.TL) {
+                return {
+                    x: min.x + x,
+                    z: min.z + z
+                };
+            }
+
+            if (startSpot === StartSpots.TR) {
+                return {
+                    x: max.x - x,
+                    z: min.z + z
+
+                };
+            }
+            if (startSpot === StartSpots.BL) {
+                return {
+                    x: min.x + x,
+                    z: max.z - z
+
+                };
+            }
+            if (startSpot === StartSpots.BR) {
+                return {
+                    x: max.x - x,
+                    z: max.z - z
+
+                };
+            }
         }
     }
+
 
     UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone) {
         let step = 0;
@@ -206,11 +302,11 @@ class Main {
             aVal = safeZone;
             bVal = distanceZ;
         }
-        let down = false; // me_irl
+        let inverted = false;
 
         for (let a = 0; a < aVal; a++) {
             for (let b = 0; b <= bVal; b++) {
-                this.ctx.fillStyle = '#FFFF' + step + '0';
+                this.ctx.fillStyle = '#FFFFFF' + step + '0';
                 step++;
                 let x = b;
                 let z = a;
@@ -218,9 +314,14 @@ class Main {
                     x = a;
                     z = b;
                 }
-                let nextPos = this.GetNextPos(worker.min,worker.max,x,z,startSpot);
 
-/*                if(down) {
+                let nextPos = this.GetNextPos(worker.min,worker.max,x,z,startSpot, orientation, inverted);
+
+/*
+                x: min.min.x + x,
+                z: min.min.z + z
+
+                if(down) {
                     if(orientation === "z") {
                         nextPos = {
                             x: worker.min.x + x,
@@ -235,17 +336,17 @@ class Main {
                 }*/
                 this.DrawRect(nextPos.x, nextPos.z);
             }
-            if(down) {
-                down = false
+            if(inverted) {
+                inverted = false
             } else {
-                down = true
+                inverted = true
             }
         }
     }
 
 
     ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone) {
-        let down = false;
+        let inverted = false;
         let aVal = distanceX ;
         let bVal = distanceZ;
 
@@ -257,7 +358,7 @@ class Main {
 
         for (let a = 0; a <= aVal; a++) {
             for (let b = safeZone; b <= bVal; b++) {
-                this.ctx.fillStyle = '#FFFFFF' + step + '0';
+                this.ctx.fillStyle = 'yellow';
                 step++;
 
                 let x = a;
@@ -266,32 +367,16 @@ class Main {
                     x = b;
                     z = a;
                 }
-                let nextPos = {
-                    x: worker.min.x + x,
-                    z: worker.min.z + z
-                };
-                if(down) {
-                    if(orientation === "z") {
-                        nextPos = {
 
-                            x: worker.max.x - (x - safeZone),
-                            z: worker.min.z + z
-                        };
-                    }else if(orientation === "x") {
-                        nextPos = {
-                            x: worker.min.x + x,
-                            z: worker.max.z - (z - safeZone)
-                        };
-                    }
-                }
+                let nextPos = this.GetNextPos(worker.min,worker.max,x,z,startSpot, orientation, inverted);
 
 
                 this.DrawRect(nextPos.x, nextPos.z);
             }
-            if(down) {
-                down = false
+            if(inverted) {
+                inverted = false
             } else {
-                down = true
+                inverted = true
             }
         }
     }
