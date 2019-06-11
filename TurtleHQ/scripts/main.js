@@ -125,7 +125,7 @@ class Main {
 
 
             this.UpDown(worker, distanceX, distanceY, orientation, 2);
-            this.ZigZag(worker, distanceX, distanceY, orientation);
+            this.ZigZag(worker, distanceX, distanceY, orientation, 2);
             this.DrawRect(worker.max.x, worker.max.y);
             this.ctx.fillStyle = 'green';
         }
@@ -180,7 +180,7 @@ class Main {
             }
         }
     }
-    ZigZag(worker, distanceX, distanceY, orientation, ) {
+    ZigZag(worker, distanceX, distanceY, orientation, safeZone) {
         let down = false;
         let aVal = distanceX ;
         let bVal = distanceY;
@@ -210,13 +210,13 @@ class Main {
                     if(orientation === "y") {
                         nextPos = {
 
-                            x: worker.max.x - (x - 2),
+                            x: worker.max.x - (x - safeZone),
                             y: worker.min.y + y
                         };
                     }else if(orientation === "x") {
                         nextPos = {
                             x: worker.min.x + x,
-                            y: worker.max.y - (y - 2)
+                            y: worker.max.y - (y - safeZone)
                         };
                     }
                 }
@@ -231,6 +231,7 @@ class Main {
             }
         }
     }
+
     getScaled(x,y) {
         return new Vec2(x * this.step, y * this.step);
     }
