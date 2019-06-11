@@ -26,15 +26,15 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec2(20,20);
-        let max = new Vec2(32,30);
+        let min = new Vec2(20,15);
+        let max = new Vec2(40,30);
 
         this.DrawRect(min.x, min.y);
         this.DrawRect(max.x, max.y);
 
         this.ctx.fillStyle = 'green';
         let orientation = this.GetOrientation(min,max);
-        this.GetStartStop(2, min, max, orientation)
+        this.GetStartStop(5, min, max, orientation)
     }
 
     GetOrientation(min,max) {
@@ -109,7 +109,6 @@ class Main {
 
 
     DoWork(workers, orientation, odd) {
-
         for (let i = 0; i < workers.length; i++) {
             let worker = workers[i];
             let distanceX = Math.abs(worker.max.x - worker.min.x);
@@ -123,106 +122,115 @@ class Main {
                     worker.max.y++;
                 }
             }
-            let step = 0;
-
-            let aVal = 2;
-            let bVal = distanceX;
 
 
-            if(orientation === "y") {
-                aVal = 2;
-                bVal = distanceY;
-            }
-            let down = false; // me_irl
-
-            for (let a = 0; a < aVal; a++) {
-                for (let b = 0; b <= bVal; b++) {
-                    this.ctx.fillStyle = '#FFFFFF' + step + '0';
-                    step++;
-                    let x = b;
-                    let y = a;
-                    if(orientation === "y") {
-                        x = a;
-                        y = b;
-                    }
-                    let nextPos = {
-                        x: worker.min.x + x,
-                        y: worker.min.y + y
-                    };
-                    if(down) {
-                        if(orientation === "y") {
-                            nextPos = {
-                                x: worker.min.x + x,
-                                y: worker.max.y - y
-                            };
-                        }else if(orientation === "x") {
-                            nextPos = {
-                                x: worker.max.x - x,
-                                y: worker.min.y + y
-                            };
-                        }
-                    }
-                    this.DrawRect(nextPos.x, nextPos.y);
-                }
-                if(down) {
-                    down = false
-                } else {
-                    down = true
-                }
-            }
-            aVal = distanceX;
-            bVal = distanceY;
-
-            if(orientation === "y") {
-                aVal = distanceY;
-                bVal = distanceX;
-            }
-
-            for (let a = 0; a <= aVal; a++) {
-                for (let b = 2; b <= bVal; b++) {
-                    this.ctx.fillStyle = '#FFFFFF' + step + '0';
-                    step++;
-
-                    let x = a;
-                    let y = b;
-                    if(orientation === "y") {
-                        x = b;
-                        y = a;
-                    }
-                    let nextPos = {
-                        x: worker.min.x + x,
-                        y: worker.min.y + y
-                    };
-                    if(down) {
-                        if(orientation === "y") {
-                            nextPos = {
-                                x: worker.min.x + x,
-                                y: worker.max.y - y
-                            };
-                        }else if(orientation === "x") {
-                            nextPos = {
-                                x: worker.min.x + x,
-                                y: worker.max.y - (y - 2)
-                            };
-                        }
-                    }
-
-
-                    this.DrawRect(nextPos.x, nextPos.y);
-                }
-                if(down) {
-                    down = false
-                } else {
-                    down = true
-                }
-            }
-
-
+            this.UpDown(worker, distanceX, distanceY, orientation, 2);
+            this.ZigZag(worker, distanceX, distanceY, orientation);
             this.DrawRect(worker.max.x, worker.max.y);
             this.ctx.fillStyle = 'green';
         }
     }
+    UpDown(worker, distanceX, distanceY, orientation, safeZone) {
+        let step = 0;
 
+        let aVal = safeZone;
+        let bVal = distanceX;
+
+        // Flip a,b/x,y depending on optimal rotation.
+
+        if(orientation === "y") {
+            aVal = safeZone;
+            bVal = distanceY;
+        }
+        let down = false; // me_irl
+
+        for (let a = 0; a < aVal; a++) {
+            for (let b = 0; b <= bVal; b++) {
+                this.ctx.fillStyle = '#FFFFFF' + step + '0';
+                step++;
+                let x = b;
+                let y = a;
+                if(orientation === "y") {
+                    x = a;
+                    y = b;
+                }
+                let nextPos = {
+                    x: worker.min.x + x,
+                    y: worker.min.y + y
+                };
+                if(down) {
+                    if(orientation === "y") {
+                        nextPos = {
+                            x: worker.min.x + x,
+                            y: worker.max.y - y
+                        };
+                    }else if(orientation === "x") {
+                        nextPos = {
+                            x: worker.max.x - x,
+                            y: worker.min.y + y
+                        };
+                    }
+                }
+                this.DrawRect(nextPos.x, nextPos.y);
+            }
+            if(down) {
+                down = false
+            } else {
+                down = true
+            }
+        }
+    }
+    ZigZag(worker, distanceX, distanceY, orientation, ) {
+        let down = false;
+        let aVal = distanceX ;
+        let bVal = distanceY;
+
+        if(orientation === "y") {
+            aVal = distanceY;
+            bVal = distanceX;
+        }
+        let step = 0;
+
+        for (let a = 0; a <= aVal; a++) {
+            for (let b = 2; b <= bVal; b++) {
+                this.ctx.fillStyle = '#FFFFFF' + step + '0';
+                step++;
+
+                let x = a;
+                let y = b;
+                if(orientation === "y") {
+                    x = b;
+                    y = a;
+                }
+                let nextPos = {
+                    x: worker.min.x + x,
+                    y: worker.min.y + y
+                };
+                if(down) {
+                    if(orientation === "y") {
+                        nextPos = {
+
+                            x: worker.max.x - (x - 2),
+                            y: worker.min.y + y
+                        };
+                    }else if(orientation === "x") {
+                        nextPos = {
+                            x: worker.min.x + x,
+                            y: worker.max.y - (y - 2)
+                        };
+                    }
+                }
+
+
+                this.DrawRect(nextPos.x, nextPos.y);
+            }
+            if(down) {
+                down = false
+            } else {
+                down = true
+            }
+        }
+    }
     getScaled(x,y) {
         return new Vec2(x * this.step, y * this.step);
     }
