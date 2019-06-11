@@ -2,7 +2,7 @@ class Main {
     constructor() {
         this.canvas = null;
         this.ctx = null;
-        this.step = 25;
+        this.step = 10;
         this.Init();
     }
 
@@ -26,8 +26,8 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec2(0,0);
-        let max = new Vec2(6,6);
+        let min = new Vec2(20,20);
+        let max = new Vec2(32,30);
 
         this.DrawRect(min.x, min.y);
         this.DrawRect(max.x, max.y);
@@ -47,17 +47,22 @@ class Main {
         }
         //TODO: Z
     }
-
+    hasDecimal(number) {
+        return number % 1 != 0
+    }
     GetStartStop(workerCount, min, max, orientation) {
         let distanceX = Math.abs(max.x - min.x) + 1;
         let distanceY = Math.abs(max.y - min.y) + 1;
         let distanceZ = Math.abs(max.z - min.z) + 1;
 
-        let incrementX = distanceX / workerCount;
-        let incrementY = distanceY / workerCount;
-        let incrementZ = distanceZ / workerCount;
-        console.log(distanceX);
+        let incrementX = Math.floor(distanceX / workerCount);
+        let incrementY = Math.floor(distanceY / workerCount);
+        let incrementZ = Math.floor(distanceZ / workerCount);
 
+        let odd = false;
+        if(this.hasDecimal(distanceX / workerCount) || this.hasDecimal(distanceY / workerCount)) {
+            odd = true;
+        }
 
         let workers = [];
         for (let i = 0; i < workerCount; i++ ) {
@@ -88,7 +93,7 @@ class Main {
             };
         }
         this.DrawWorkers(workers);
-        this.DoWork(workers, orientation)
+        this.DoWork(workers, orientation, odd)
     }
 
     DrawWorkers (workers) {
@@ -103,13 +108,21 @@ class Main {
     }
 
 
-    DoWork(workers, orientation) {
+    DoWork(workers, orientation, odd) {
 
         for (let i = 0; i < workers.length; i++) {
             let worker = workers[i];
             let distanceX = Math.abs(worker.max.x - worker.min.x);
             let distanceY = Math.abs(worker.max.y - worker.min.y);
-
+            if(i === workers.length - 1 && odd === true) { // If this is the last worker
+                if(orientation == "x") {
+                    distanceX++;
+                    worker.max.x++;
+                } else {
+                    distanceY++;
+                    worker.max.y++;
+                }
+            }
             let step = 0;
 
             let aVal = 2;
@@ -117,17 +130,14 @@ class Main {
 
 
             if(orientation === "y") {
-                aVal = distanceY;
-                bVal = 2;
+                aVal = 2;
+                bVal = distanceY;
             }
-
-
-
             let down = false; // me_irl
 
             for (let a = 0; a < aVal; a++) {
                 for (let b = 0; b <= bVal; b++) {
-                    this.ctx.fillStyle = '#FFFFFF' + (9 - step) + '0';
+                    this.ctx.fillStyle = '#FFFFFF' + step + '0';
                     step++;
                     let x = b;
                     let y = a;
@@ -160,8 +170,16 @@ class Main {
                     down = true
                 }
             }
-            for (let a = 0; a <= distanceX; a++) {
-                for (let b = 2; b <= distanceY; b++) {
+            aVal = distanceX;
+            bVal = distanceY;
+
+            if(orientation === "y") {
+                aVal = distanceY;
+                bVal = distanceX;
+            }
+
+            for (let a = 0; a <= aVal; a++) {
+                for (let b = 2; b <= bVal; b++) {
                     this.ctx.fillStyle = '#FFFFFF' + step + '0';
                     step++;
 
