@@ -26,15 +26,15 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec3(10,5,10);
-        let max = new Vec3(20,10, 20);
+        let min = new Vec3(5,5,5);
+        let max = new Vec3(45,5, 10);
 
         this.DrawRect(min.x, min.z);
         this.DrawRect(max.x, max.z);
 
         this.ctx.fillStyle = 'green';
         let orientation = this.GetOrientation(min,max);
-        this.GetStartStop(5, min, max, orientation)
+        this.GetStartStop(3, min, max, orientation)
     }
 
     GetOrientation(min,max) {
@@ -47,7 +47,7 @@ class Main {
         } else {
             return "z"
         }
-        //TODO: Z
+        //TODO: Z?
     }
     hasDecimal(number) {
         return number % 1 != 0
@@ -57,14 +57,9 @@ class Main {
         let distanceY = Math.abs(max.y - min.y) + 1;
         let distanceZ = Math.abs(max.z - min.z) + 1;
 
-        let incrementX = Math.floor(distanceX / workerCount);
-        let incrementY = Math.floor(distanceY / workerCount);
-        let incrementZ = Math.floor(distanceZ / workerCount);
-
-        let odd = false;
-        if(this.hasDecimal(distanceX / workerCount) || this.hasDecimal(distanceZ / workerCount)) {
-            odd = true;
-        }
+        let incrementX = Math.round(distanceX / workerCount);
+        let incrementY = Math.round(distanceY / workerCount);
+        let incrementZ = Math.round(distanceZ / workerCount);
 
         let workers = [];
         for (let i = 0; i < workerCount; i++ ) {
@@ -88,6 +83,24 @@ class Main {
                 worker_Z_end = min.z + (i + 1) * incrementZ - 1;
             }
 
+            // Restrict to working area, cut off unmet
+            if(worker_X_end > max.x) {
+                worker_X_end = max.z;
+            }
+            if(worker_Z_end > max.z) {
+                worker_Z_end = max.z;
+            }
+
+            if(i + 1 === workerCount) { // Last worker, pad the last rows or columns
+                console.log("bruh")
+                if(worker_X_end < max.x) {
+                    worker_X_end = max.x;
+                }
+                if(worker_Z_end < max.z) {
+                    worker_Z_end = max.z;
+                }
+            }
+
             this.DrawRect(worker_X_start, worker_Z_start);
             this.DrawRect(worker_X_end, worker_Z_end);
             workers[i] = {
@@ -97,7 +110,7 @@ class Main {
             };
         }
         this.DrawWorkers(workers);
-        this.DoWork(workers, orientation, odd)
+        this.DoWork(workers, orientation)
     }
 
     DrawWorkers (workers) {
@@ -112,22 +125,13 @@ class Main {
     }
 
 
-    DoWork(workers, orientation, odd) {
+    DoWork(workers, orientation) {
         for (let i = 0; i < workers.length; i++) {
             let worker = workers[i];
             let distanceX = Math.abs(worker.max.x - worker.min.x);
             let distanceY = Math.abs(worker.max.y - worker.min.y);
             let distanceZ = Math.abs(worker.max.z - worker.min.z);
 
-            if(i === workers.length - 1 && odd === true) { // If this is the last worker
-                if(orientation === "x") {
-                    distanceX++;
-                    worker.max.x++;
-                } else {
-                    distanceZ++;
-                    worker.max.z++;
-                }
-            }
             let height = 6;
             let topBottom = false;
             let startSpot = StartSpots.BR;
@@ -151,10 +155,19 @@ class Main {
 
 
                 //if(safeZone !== 0) {
-                    this.UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
+            //this.UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
+            //this.UpDown(worker, startSpot, distanceX, distanceZ, "x", safeZone);
                 //}
-                this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
+              //  this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, 10);
             //}
+
+            if(orientation == "x") {
+                this.ZigZag2(worker, 1, distanceX, false);
+                this.ZigZag2(worker, distanceX , distanceZ, true, 2);
+            } else {
+                this.ZigZag2(worker, 1, distanceZ, true, 0);
+                this.ZigZag2(worker, distanceZ, distanceX, false, 2);
+            }
 
 
             this.ctx.fillStyle = 'green';
@@ -162,226 +175,72 @@ class Main {
         }
     }
 
-    // What the fuck is this algo
-    GetNextPos(min,max,x,z,startSpot, orientation, inverted) {
-        if(orientation === "x") {
-            if (inverted) {
-                if (startSpot === StartSpots.TL) {
-                    return {
-                        x: max.x - x,
-                        z: min.z + z
-                    };
+    ZigZag2(worker, distanceX,distanceZ, flip, push = 0) {
+        let x = 0;
+        let z = 0;
+
+            x = push;
+
+        let xInvert = false;
+        let lastTurn = 0;
+        this.ctx.fillStyle = this.getRandomColor();
+
+        let s_turn = [];
+
+        let distanceA = distanceX;
+        let distanceB = distanceZ;
+
+
+        for (let i = 0; i <= distanceA; i++) {
+            for (let i2 = push; i2 < distanceB; i2++) {
+                if(x === distanceB) {
+                    xInvert = true;
+                }
+                if(x === push) {
+                    xInvert = false;
+                }
+                if(xInvert) {
+                    x--;
+                    s_turn.push("south")
+                } else {
+                    x++;
+                    s_turn.push("north")
+                }
+                if(flip == false) {
+                    this.DrawRect(worker.min.x + x, worker.min.z + z); // Draw current pos
+                } else {
+                    this.DrawRect(worker.min.x + z, worker.min.z + x); // Draw current pos
                 }
 
-                if (startSpot === StartSpots.TR) {
-                    return {
-                        x: min.x + x,
-                        z: min.z + z
 
-                    };
-                }
-                if (startSpot === StartSpots.BL) {
-                    return {
-                        x: max.x - x,
-                        z: max.z - z
-
-                    };
-                }
-                if (startSpot === StartSpots.BR) {
-                    return {
-                        x: min.x + x,
-                        z: max.z - z
-
-                    };
-                }
             }
-            //
-            if (startSpot === StartSpots.TL) {
-                return {
-                    x: min.x + x,
-                    z: min.z + z
-                };
+            if(z == distanceA) {
+                console.log(s_turn);
+                return
             }
 
-            if (startSpot === StartSpots.TR) {
-                return {
-                    x: max.x - x,
-                    z: min.z + z
-
-                };
-            }
-            if (startSpot === StartSpots.BL) {
-                return {
-                    x: min.x + x,
-                    z: max.z - z
-
-                };
-            }
-            if (startSpot === StartSpots.BR) {
-                return {
-                    x: max.x - x,
-                    z: max.z - z
-
-                };
-            }
-        }
-        if(orientation === "z") {
-
-            if (inverted) {
-                if (startSpot === StartSpots.TL) {
-                    return {
-                        x: min.x + x,
-                        z: max.z - z
-                    };
-                }
-
-                if (startSpot === StartSpots.TR) {
-                    return {
-                        x: max.x - x,
-                        z: max.z - z
-
-                    };
-                }
-                if (startSpot === StartSpots.BL) {
-                    return {
-                        x: min.x + x,
-                        z: min.z + z
-
-                    };
-                }
-                if (startSpot === StartSpots.BR) {
-                    return {
-                        x: max.x - x,
-                        z: min.z + z
-
-                    };
-                }
-            }
-            //
-            if (startSpot === StartSpots.TL) {
-                return {
-                    x: min.x + x,
-                    z: min.z + z
-                };
-            }
-
-            if (startSpot === StartSpots.TR) {
-                return {
-                    x: max.x - x,
-                    z: min.z + z
-
-                };
-            }
-            if (startSpot === StartSpots.BL) {
-                return {
-                    x: min.x + x,
-                    z: max.z - z
-
-                };
-            }
-            if (startSpot === StartSpots.BR) {
-                return {
-                    x: max.x - x,
-                    z: max.z - z
-
-                };
-            }
-        }
-    }
-
-
-    UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone) {
-        let step = 0;
-
-        let aVal = safeZone;
-        let bVal = distanceX;
-
-        // Flip a,b/x,y depending on optimal rotation.
-
-        if(orientation === "z") {
-            aVal = safeZone;
-            bVal = distanceZ;
-        }
-        let inverted = false;
-
-        for (let a = 0; a < aVal; a++) {
-            for (let b = 0; b <= bVal; b++) {
-                this.ctx.fillStyle = '#FFFFFF' + step + '0';
-                step++;
-                let x = b;
-                let z = a;
-                if(orientation === "z") {
-                    x = a;
-                    z = b;
-                }
-
-                let nextPos = this.GetNextPos(worker.min,worker.max,x,z,startSpot, orientation, inverted);
-
-/*
-                x: min.min.x + x,
-                z: min.min.z + z
-
-                if(down) {
-                    if(orientation === "z") {
-                        nextPos = {
-                            x: worker.min.x + x,
-                            z: worker.max.z - z
-                        };
-                    }else if(orientation === "x") {
-                        nextPos = {
-                            x: worker.max.x - x,
-                            z: worker.min.z + z
-                        };
-                    }
-                }*/
-                this.DrawRect(nextPos.x, nextPos.z);
-            }
-            if(inverted) {
-                inverted = false
+            s_turn.push("left");
+            z++;
+            if(flip == false) {
+                this.DrawRect(worker.min.x + x, worker.min.z + z); // Draw current pos
             } else {
-                inverted = true
+                this.DrawRect(worker.min.x + z, worker.min.z + x); // Draw current pos
             }
         }
     }
 
+    AddToPath(x,y,flipped) {
 
-    ZigZag(worker, startSpot, distanceX, distanceZ, orientation, safeZone) {
-        let inverted = false;
-        let aVal = distanceX ;
-        let bVal = distanceZ;
-
-        if(orientation === "z") {
-            aVal = distanceZ;
-            bVal = distanceX;
-        }
-        let step = 0;
-
-        for (let a = 0; a <= aVal; a++) {
-            for (let b = safeZone; b <= bVal; b++) {
-                this.ctx.fillStyle = 'yellow';
-                step++;
-
-                let x = a;
-                let z = b;
-                if(orientation === "z") {
-                    x = b;
-                    z = a;
-                }
-
-                let nextPos = this.GetNextPos(worker.min,worker.max,x,z,startSpot, orientation, inverted);
-
-
-                this.DrawRect(nextPos.x, nextPos.z);
-            }
-            if(inverted) {
-                inverted = false
-            } else {
-                inverted = true
-            }
-        }
     }
 
-
+    getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
     getScaled(x,y,z) {
         return new Vec3(x * this.step, y * this.step,y * this.step);
     }
