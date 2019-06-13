@@ -1,4 +1,6 @@
 class Main {
+    //TODO: Calculate the optimal number of workers based on availability.
+
     constructor() {
         this.canvas = null;
         this.ctx = null;
@@ -9,8 +11,8 @@ class Main {
     Init() {
         this.canvas = document.getElementById('renderer');
         this.ctx = this.canvas.getContext('2d');
-        let w = 500;
-        let h = 500;
+        let w = 2048;
+        let h = 2048;
 
         this.canvas.width  = w;
         this.canvas.height = h;
@@ -26,15 +28,14 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec3(5,5,5);
-        let max = new Vec3(45,5, 10);
+        let min = new Vec3(50,0,23);
+        let max = new Vec3(79,5, 80);
 
         this.DrawRect(min.x, min.z);
         this.DrawRect(max.x, max.z);
 
         this.ctx.fillStyle = 'green';
-        let orientation = this.GetOrientation(min,max);
-        this.GetStartStop(3, min, max, orientation)
+        this.GetStartStop(50, min, max)
     }
 
     GetOrientation(min,max) {
@@ -52,15 +53,24 @@ class Main {
     hasDecimal(number) {
         return number % 1 != 0
     }
-    GetStartStop(workerCount, min, max, orientation) {
+    GetStartStop(workerCount, min, max) {
+
+        let orientation = this.GetOrientation(min,max);
+
         let distanceX = Math.abs(max.x - min.x) + 1;
         let distanceY = Math.abs(max.y - min.y) + 1;
         let distanceZ = Math.abs(max.z - min.z) + 1;
 
+        if(orientation === "x" && distanceX < workerCount) {
+            workerCount = distanceX;
+        }
+        if(orientation === "y" && distanceY < workerCount) {
+            workerCount = distanceY;
+        }
+
         let incrementX = Math.round(distanceX / workerCount);
         let incrementY = Math.round(distanceY / workerCount);
         let incrementZ = Math.round(distanceZ / workerCount);
-
         let workers = [];
         for (let i = 0; i < workerCount; i++ ) {
             let worker_X_start;
@@ -90,9 +100,9 @@ class Main {
             if(worker_Z_end > max.z) {
                 worker_Z_end = max.z;
             }
-
+            //TODO: Some better way of dividing the tasks?
+            //TODO: Invent a formula to figure out the optimal number of workers for this specific task.
             if(i + 1 === workerCount) { // Last worker, pad the last rows or columns
-                console.log("bruh")
                 if(worker_X_end < max.x) {
                     worker_X_end = max.x;
                 }
@@ -161,6 +171,9 @@ class Main {
               //  this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, 10);
             //}
 
+            //TODO: Y axis.
+            //
+
             if(orientation == "x") {
                 this.ZigZag2(worker, 1, distanceX, false);
                 this.ZigZag2(worker, distanceX , distanceZ, true, 2);
@@ -190,7 +203,6 @@ class Main {
         let distanceA = distanceX;
         let distanceB = distanceZ;
 
-
         for (let i = 0; i <= distanceA; i++) {
             for (let i2 = push; i2 < distanceB; i2++) {
                 if(x === distanceB) {
@@ -198,6 +210,11 @@ class Main {
                 }
                 if(x === push) {
                     xInvert = false;
+                }
+                if(flip == false) {
+                    this.DrawRect(worker.min.x + x, worker.min.z + z); // Draw current pos
+                } else {
+                    this.DrawRect(worker.min.x + z, worker.min.z + x); // Draw current pos
                 }
                 if(xInvert) {
                     x--;
@@ -211,11 +228,8 @@ class Main {
                 } else {
                     this.DrawRect(worker.min.x + z, worker.min.z + x); // Draw current pos
                 }
-
-
             }
             if(z == distanceA) {
-                console.log(s_turn);
                 return
             }
 
