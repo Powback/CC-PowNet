@@ -20,6 +20,7 @@ s_Connected, DATA = PowNet.Connect()
 
 PowNet.UpdateModule("PowNet")
 PowNet.UpdateModule("PowNetRemote.lua", "p")
+local LastCall = nil
 
 function CallCallable(module, func, params)
     if(params == nil) then
@@ -43,6 +44,7 @@ function CallCallable(module, func, params)
     else
         print(s_Result)
     end
+	LastCall = s_Message
 end
 
 local numArgs = # tArgs
@@ -86,10 +88,11 @@ function IsOption(p_Input, p_Options)
     end
     return true
 end
-function getVal(p_Val, p_OptionName)
+function getVal(p_Val)
     if(type(p_Val) == "table") then
         local s_Ret = ""
         local s_Padding = ""
+
         for k,v in pairs(p_Val) do
             if(type(v) == "table") then
                 s_Ret = s_Ret .. "-: " .. k .."\n".. getVal(v) .. "\n"
@@ -122,7 +125,7 @@ function ParseOptions(p_Options, p_Answers)
             if(p_Answers[optionName] ~= nil) then
 
                 term.setTextColor( colors.gray )
-                print(getVal(p_Answers[optionName], optionName))
+                print(getVal(p_Answers[optionName]))
             end
             term.setTextColor( colors.white )
         end

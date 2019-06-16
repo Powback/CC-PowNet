@@ -2,7 +2,7 @@
 --Goal: Handle drones and their status
 
 local m_Monitor = peripheral.wrap("left")
-
+print(os.loadAPI("ServerTasks/dig"))
 Log("Starting...")
 
 function Init()
@@ -39,7 +39,8 @@ function OnAddTask(p_ID, p_Message)
     }
 
     local s_Work = p_Message.data.work
-
+	local s_Path = dig.PrepareTask(s_Work["dig"])
+	print(s_Path)
     local s_Task = {
         name = s_Task.name,
         id = s_Task.id,
@@ -169,7 +170,7 @@ function Render()
     end
 end
 
-
+PowNet.UpdateModule("ServerTasks/dig.lua", "ServerTasks/dig")
 Init()
 PowNet.RegisterEvents(m_ServerEvents, m_DroneEvents, Render)
 SetStatus("Connected!", colors.green)

@@ -4,17 +4,17 @@ class Main {
     constructor() {
         this.canvas = null;
         this.ctx = null;
-        this.step = 10;
+        this.step = 5;
         this.Init();
     }
 
     Init() {
         this.canvas = document.getElementById('renderer');
         this.ctx = this.canvas.getContext('2d');
-        let w = 2048;
-        let h = 2048;
+        let w = 1000;
+        let h = 1000;
 
-        this.canvas.width  = w;
+        this.canvas.width = w;
         this.canvas.height = h;
         this.Draw();
         this.DoLogic();
@@ -28,18 +28,18 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec3(50,0,23);
-        let max = new Vec3(79,5, 80);
+        let min = new Vec3(7,0,23);
+        let max = new Vec3(2,5, 80);
 
         this.DrawRect(min.x, min.z);
         this.DrawRect(max.x, max.z);
 
         this.ctx.fillStyle = 'green';
-        this.GetStartStop(50, min, max)
+        this.GetStartStop(2, min, max)
     }
 
     GetOrientation(min,max) {
-        let distanceX = Math.abs(max.x - min.z);
+        let distanceX = Math.abs(max.x - min.x);
         let distanceY = Math.abs(max.y - min.y);
         let distanceZ = Math.abs(max.z - min.z);
 
@@ -53,24 +53,40 @@ class Main {
     hasDecimal(number) {
         return number % 1 != 0
     }
-    GetStartStop(workerCount, min, max) {
+    GetStartStop(workerCount, p_Min, p_Max) {
+        let min = p_Min.Clone();
+        let max = p_Max.Clone();
+        if(p_Min.x > p_Max.x) {
+            min.x = p_Max.x;
+            max.x = p_Min.x;
+        }
+        if(p_Min.y > p_Max.y) {
+            min.y = p_Max.y;
+            max.y = p_Min.y;
+        }
+        if(p_Min.z > p_Max.z) {
+            min.z = p_Max.z;
+            max.z = p_Min.z;
+        }
 
         let orientation = this.GetOrientation(min,max);
 
-        let distanceX = Math.abs(max.x - min.x) + 1;
-        let distanceY = Math.abs(max.y - min.y) + 1;
-        let distanceZ = Math.abs(max.z - min.z) + 1;
+        let distanceX = Math.abs(max.x - min.x);
+        let distanceY = Math.abs(max.y - min.y);
+        let distanceZ = Math.abs(max.z - min.z);
 
         if(orientation === "x" && distanceX < workerCount) {
             workerCount = distanceX;
         }
-        if(orientation === "y" && distanceY < workerCount) {
+        if(orientation === "z" && distanceY < workerCount) {
             workerCount = distanceY;
         }
+        console.log(workerCount)
 
         let incrementX = Math.round(distanceX / workerCount);
         let incrementY = Math.round(distanceY / workerCount);
         let incrementZ = Math.round(distanceZ / workerCount);
+        console.log(incrementX)
         let workers = [];
         for (let i = 0; i < workerCount; i++ ) {
             let worker_X_start;
@@ -156,19 +172,19 @@ class Main {
                 rounds = Math.floor(rounds) + 1
             }
             //for (let round = 0; round < rounds; round++) {
-                let safeZone = 0;
+            let safeZone = 0;
 
-                //if(round === 0) {
-                    safeZone = 2; // Make the drone dig out the 2 first rows first, so other drones can get to their spot.
-              //  }
+            //if(round === 0) {
+            safeZone = 2; // Make the drone dig out the 2 first rows first, so other drones can get to their spot.
+            //  }
 
 
 
-                //if(safeZone !== 0) {
+            //if(safeZone !== 0) {
             //this.UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
             //this.UpDown(worker, startSpot, distanceX, distanceZ, "x", safeZone);
-                //}
-              //  this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, 10);
+            //}
+            //  this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, 10);
             //}
 
             //TODO: Y axis.
@@ -192,7 +208,7 @@ class Main {
         let x = 0;
         let z = 0;
 
-            x = push;
+        x = push;
 
         let xInvert = false;
         let lastTurn = 0;
@@ -202,6 +218,8 @@ class Main {
 
         let distanceA = distanceX;
         let distanceB = distanceZ;
+        console.log("a:" + distanceA);
+        console.log("b:" + distanceB);
 
         for (let i = 0; i <= distanceA; i++) {
             for (let i2 = push; i2 < distanceB; i2++) {
@@ -230,6 +248,8 @@ class Main {
                 }
             }
             if(z == distanceA) {
+                console.log(s_turn)
+
                 return
             }
 
@@ -301,4 +321,9 @@ class Vec3 {
         this.y = y;
         this.z = z;
     }
+
+    Clone() {
+        return new Vec3(this.x, this.y, this.z)
+    }
+
 }
