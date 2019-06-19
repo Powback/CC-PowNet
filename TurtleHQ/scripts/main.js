@@ -16,9 +16,10 @@ class Main {
 
         this.canvas.width = w;
         this.canvas.height = h;
+        this.DrawGrid(w,h,this.step);
+
         this.Draw();
         this.DoLogic();
-        this.DrawGrid(w,h,this.step);
 
 
     }
@@ -28,14 +29,32 @@ class Main {
     }
 
     DoLogic() {
-        let min = new Vec3(7,0,23);
-        let max = new Vec3(2,5, 80);
+        let min = new Vec3(2,0,23);
+        let max = new Vec3(101,5, 143);
+        let startSpot = StartSpots.TR;
 
         this.DrawRect(min.x, min.z);
         this.DrawRect(max.x, max.z);
 
         this.ctx.fillStyle = 'green';
-        this.GetStartStop(2, min, max)
+        this.GetStartStop(2, min, max, startSpot)
+    }
+    GetMinMax(p_Min, p_Max) {
+        let s_Min = p_Min.Clone();
+        let s_Max = p_Max.Clone();
+        if(p_Min.x > p_Max.x) {
+            s_Min.x = p_Max.x;
+            s_Max.x = p_Min.x;
+        }
+        if(p_Min.y > p_Max.y) {
+            s_Min.y = p_Max.y;
+            s_Max.y = p_Min.y;
+        }
+        if(p_Min.z > p_Max.z) {
+            s_Min.z = p_Max.z;
+            s_Max.z = p_Min.z;
+        }
+        return {min: s_Min, max: s_Max}
     }
 
     GetOrientation(min,max) {
@@ -44,30 +63,19 @@ class Main {
         let distanceZ = Math.abs(max.z - min.z);
 
         if(distanceX <= distanceZ) {
-            return "z"
-        } else {
             return "x"
+        } else {
+            return "z"
         }
         //TODO: Z?
     }
     hasDecimal(number) {
         return number % 1 != 0
     }
-    GetStartStop(workerCount, p_Min, p_Max) {
-        let min = p_Min.Clone();
-        let max = p_Max.Clone();
-        if(p_Min.x > p_Max.x) {
-            min.x = p_Max.x;
-            max.x = p_Min.x;
-        }
-        if(p_Min.y > p_Max.y) {
-            min.y = p_Max.y;
-            max.y = p_Min.y;
-        }
-        if(p_Min.z > p_Max.z) {
-            min.z = p_Max.z;
-            max.z = p_Min.z;
-        }
+    GetStartStop(workerCount, p_Min, p_Max, p_StartSpot) {
+        let minmax = this.GetMinMax(p_Min, p_Max)
+        let min = minmax.min;
+        let max = minmax.max;
 
         let orientation = this.GetOrientation(min,max);
 
@@ -81,7 +89,7 @@ class Main {
         if(orientation === "x" && distanceY < workerCount) {
             workerCount = distanceY;
         }
-        console.log(workerCount)
+        console.log(workerCount);
 
         let incrementX = Math.round(distanceX / workerCount);
         let incrementY = Math.round(distanceY / workerCount);
@@ -89,11 +97,10 @@ class Main {
         console.log(incrementX)
         let workers = [];
         for (let i = 0; i < workerCount; i++ ) {
-            let worker_X_start;
-            let worker_Z_start;
-            let worker_X_end;
-            let worker_Z_end;
+            let start = new Vec3(0,0,0);
+            let stop = new Vec3(0,0,0);
 
+            /*
             if(orientation == "z") {
                 worker_X_start = min.x + (i * incrementX);
                 worker_Z_start = min.z;
@@ -108,36 +115,64 @@ class Main {
                 worker_X_end = max.x;
                 worker_Z_end = min.z + (i + 1) * incrementZ - 1;
             }
+            */
+            let padLast = 1;
+            if(i + 1 === workerCount && !this.hasDecimal(distanceX / workerCount)) {
+                padLast--;
+            }
+            let swap = {x: "x", z: "z"};
+            let increment = incrementX;
+            if(orientation == "z") {
+                increment = incrementZ
+                swap = {x: "z", z: "x"};
 
-            // Restrict to working area, cut off unmet
-            if(worker_X_end > max.x) {
-                worker_X_end = max.z;
             }
-            if(worker_Z_end > max.z) {
-                worker_Z_end = max.z;
+
+            if (p_StartSpot == StartSpots.TL) {
+                start[swap["x"]] = min[swap["x"]] + (i * increment);
+                start[swap["z"]] = min[swap["z"]];
+
+                stop[swap["x"]] = min[swap["x"]] + (i + 1) * increment - padLast;
+                stop[swap["z"]] = max[swap["z"]];
+            } else if (p_StartSpot == StartSpots.TR) {
+                start[swap["x"]] = max[swap["x"]] - (i * increment);
+                start[swap["z"]] = min[swap["z"]];
+
+                stop[swap["x"]] = max[swap["x"]] - ((i + 1) * increment) + padLast;
+                stop[swap["z"]] = max[swap["z"]];
+            } else if (p_StartSpot == StartSpots.BL) {
+                start[swap["x"]] = min[swap["x"]] + (i * increment);
+                start[swap["z"]] = max[swap["z"]];
+
+                stop[swap["x"]] = min[swap["x"]] + (i + 1) * increment - padLast;
+                stop[swap["z"]] = min[swap["z"]];
+            } else if (p_StartSpot == StartSpots.BR) {
+                start[swap["x"]] = max[swap["x"]] - (i * increment);
+                start[swap["z"]] = min[swap["z"]];
+
+                stop[swap["x"]] = max[swap["x"]] - ((i + 1) * increment) + padLast;
+                stop[swap["z"]] = max[swap["z"]];
             }
+
             //TODO: Some better way of dividing the tasks?
             //TODO: Invent a formula to figure out the optimal number of workers for this specific task.
-            if(i + 1 === workerCount) { // Last worker, pad the last rows or columns
-                if(worker_X_end < max.x) {
-                    worker_X_end = max.x;
-                }
-                if(worker_Z_end < max.z) {
-                    worker_Z_end = max.z;
-                }
-            }
+            /*
+            */
 
-            this.DrawRect(worker_X_start, worker_Z_start);
-            this.DrawRect(worker_X_end, worker_Z_end);
+            this.ctx.fillStyle = 'green';
+            this.DrawRect(start.x, start.z);
+
+            this.ctx.fillStyle = 'red';
+            this.DrawRect(stop.x, stop.z);
             workers[i] = {
-                min: new Vec3(worker_X_start, min.z, worker_Z_start),
-                max: new Vec3(worker_X_end, min.z, worker_Z_end),
-                pos: new Vec3(worker_X_start, min.z, worker_Z_start),
+                min: start,
+                max: stop,
+                pos: start.Clone(),
                 direction: "west"
             };
         }
-        this.DrawWorkers(workers);
-        this.DoWork(workers, orientation)
+        //this.DrawWorkers(workers);
+        this.DoWork(workers, p_StartSpot, orientation)
     }
 
     DrawWorkers (workers) {
@@ -152,15 +187,16 @@ class Main {
     }
 
 
-    DoWork(workers, orientation) {
+    DoWork(workers, startSpot, orientation) {
         for (let i = 0; i < workers.length; i++) {
             let worker = workers[i];
             let grid = this.GenerateGrid(worker.min, worker.max);
             grid[worker.pos.x][worker.pos.y][worker.pos.z] = 0;
             let workRemaining = this.GetWorkAmount(worker.min, worker.max);
+            workRemaining--; // Remove out initial position from queue
 
             let sideStep = false;
-
+            let firstMove = true;
             while(workRemaining > 0) {
 
                 this.ctx.fillStyle = this.getRandomColor();
@@ -169,34 +205,56 @@ class Main {
                 // Direct neighbor
                 if (distances[1] !== undefined) {
                     let target = distances[1][0];
-                    if(distances[1][1] !== undefined && sideStep) {
-                        target = distances[1][1];
-                    }
                     let limit;
                     if(sideStep) {
                         limit = 1;
                     }
-                    worker.direction = this.GetDirection(worker.pos, target);
+                    if(firstMove) {
+                        worker.direction = this.GetInitialDirection(startSpot, orientation);
+                        firstMove = false;
+                    } else {
+                        worker.direction = this.GetDirection(worker.pos, target);
+                    }
                     let move = this.MoveUntilStop(worker, grid, limit);
-                    workRemaining = workRemaining - move.count
-                }
-                if(sideStep) {
-                    sideStep = false;
+
+                    workRemaining = workRemaining - move.count;
+                    if(move.count == 0) {
+                        workRemaining = 0;
+                    }
+                    if(sideStep) {
+                        sideStep = false;
+                    } else {
+                        sideStep = true;
+                    }
                 } else {
-                    sideStep = true;
+                    workRemaining = 0;
                 }
             }
         }
     }
+    GetInitialDirection(p_StartDir, p_Orientation) {
+        if(p_Orientation == "x") {
+            if(p_StartDir == StartSpots.TL || p_StartDir == StartSpots.BL) {
+                return "east"
+            } else if(p_StartDir == StartSpots.TR || p_StartDir == StartSpots.BR) {
+                return "west"
+            }
+        } else {
+            if(p_StartDir == StartSpots.TL || p_StartDir == StartSpots.TR) {
+                return "north"
+            } else if(p_StartDir == StartSpots.BL || p_StartDir == StartSpots.BR) {
+                return "south"
+            }
+        }
 
+    }
     MoveUntilStop(worker, grid, limit = 100000000) {
         let s_Pos = worker.pos;
         let moveCount = 0;
         let s_Index = 0;
-        while (this.Forward(worker, grid) !== false && s_Index < limit) {
+        while (s_Index < limit && this.Forward(worker, grid) !== false) {
             s_Index++;
             grid[worker.pos.x][worker.pos.y][worker.pos.z] = 0;
-            this.DrawRect(worker.pos.x, worker.pos.z); // Draw current pos
             moveCount++;
         }
         return {count: moveCount, pos: s_Pos}
@@ -204,15 +262,18 @@ class Main {
     }
 
     Forward(worker, grid) {
+        let minmax = this.GetMinMax(worker.min, worker.max)
         let s_ExpectedPos = this.Move( {x: worker.pos.x, y: worker.pos.y, z: worker.pos.z}, worker.direction);
-        if(s_ExpectedPos.x > worker.max.x || s_ExpectedPos.y > worker.max.y || s_ExpectedPos.z > worker.max.z) {
+        if(s_ExpectedPos.x > minmax.max.x || s_ExpectedPos.y > minmax.max.y || s_ExpectedPos.z > minmax.max.z) {
             return false
-        } else if(s_ExpectedPos.x < worker.min.x || s_ExpectedPos.y < worker.min.y || s_ExpectedPos.z < worker.min.z) {
+        } else if(s_ExpectedPos.x < minmax.min.x || s_ExpectedPos.y < minmax.min.y || s_ExpectedPos.z < minmax.min.z) {
             return false
         } else if(grid[s_ExpectedPos.x][s_ExpectedPos.y][s_ExpectedPos.z] === 0) {
             return false
         } else {
-            worker.pos = s_ExpectedPos
+            worker.pos = s_ExpectedPos;
+            this.DrawRect(worker.pos.x, worker.pos.z); // Draw current pos
+
         }
     }
 
@@ -261,9 +322,17 @@ class Main {
 
 
     }
-
-    GenerateGrid(min, max) {
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    GenerateGrid(p_Min, p_Max) {
+        let s_minmax = this.GetMinMax(p_Min, p_Max);
+        let min = s_minmax.min;
+        let max = s_minmax.max;
         let grid = [];
+
 
         for(let x = min.x; x <= max.x; x++) {
             if(grid[x] == undefined) {
@@ -282,9 +351,9 @@ class Main {
     }
 
     GetWorkAmount(p_Min, p_Max) {
-        let distance = Math.abs(p_Max.x - p_Min.x) + 1
-        distance = distance * Math.abs(p_Max.z - p_Min.z);
-        return distance
+        let distanceX = Math.abs(p_Max.x - p_Min.x) + 1;
+        let distanceZ = Math.abs(p_Max.z - p_Min.z) + 1;
+        return distanceX * distanceZ
     }
     GetDistance(a,b) {
         return Math.abs(a - b);
@@ -401,7 +470,7 @@ class Main {
             this.ctx.lineTo(x, h);
         }
         // set the color of the line
-        this.ctx.strokeStyle = 'rgb(20,20,20)';
+        this.ctx.strokeStyle = 'rgb(30,30,30)';
         this.ctx.lineWidth = 1;
         // the stroke will actually paint the current path
         this.ctx.stroke();
@@ -412,7 +481,7 @@ class Main {
             this.ctx.lineTo(w, y);
         }
         // set the color of the line
-        this.ctx.strokeStyle = 'rgb(20,20,20)';
+        this.ctx.strokeStyle = 'rgb(30,30,30)';
         // just for fun
         this.ctx.lineWidth = 1;
         // for your original question - you need to stroke only once
