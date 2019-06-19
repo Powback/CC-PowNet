@@ -44,9 +44,9 @@ class Main {
         let distanceZ = Math.abs(max.z - min.z);
 
         if(distanceX <= distanceZ) {
-            return "x"
-        } else {
             return "z"
+        } else {
+            return "x"
         }
         //TODO: Z?
     }
@@ -75,10 +75,10 @@ class Main {
         let distanceY = Math.abs(max.y - min.y);
         let distanceZ = Math.abs(max.z - min.z);
 
-        if(orientation === "x" && distanceX < workerCount) {
+        if(orientation === "z" && distanceX < workerCount) {
             workerCount = distanceX;
         }
-        if(orientation === "z" && distanceY < workerCount) {
+        if(orientation === "x" && distanceY < workerCount) {
             workerCount = distanceY;
         }
         console.log(workerCount)
@@ -94,7 +94,7 @@ class Main {
             let worker_X_end;
             let worker_Z_end;
 
-            if(orientation == "x") {
+            if(orientation == "z") {
                 worker_X_start = min.x + (i * incrementX);
                 worker_Z_start = min.z;
 
@@ -132,7 +132,8 @@ class Main {
             workers[i] = {
                 min: new Vec3(worker_X_start, min.z, worker_Z_start),
                 max: new Vec3(worker_X_end, min.z, worker_Z_end),
-
+                pos: new Vec3(worker_X_start, min.z, worker_Z_start),
+                direction: "west"
             };
         }
         this.DrawWorkers(workers);
@@ -154,54 +155,163 @@ class Main {
     DoWork(workers, orientation) {
         for (let i = 0; i < workers.length; i++) {
             let worker = workers[i];
-            let distanceX = Math.abs(worker.max.x - worker.min.x);
-            let distanceY = Math.abs(worker.max.y - worker.min.y);
-            let distanceZ = Math.abs(worker.max.z - worker.min.z);
+            let grid = this.GenerateGrid(worker.min, worker.max);
+            grid[worker.pos.x][worker.pos.y][worker.pos.z] = 0;
+            let workRemaining = this.GetWorkAmount(worker.min, worker.max);
 
-            let height = 6;
-            let topBottom = false;
-            let startSpot = StartSpots.BR;
+            let sideStep = false;
 
-            let rounds = height / 3;
+            while(workRemaining > 0) {
 
-            if(rounds < 1) {
-                rounds = 1; // height is 1-3, we just need to go 1 round
+                this.ctx.fillStyle = this.getRandomColor();
+                let distances = this.GetDistances(worker.pos, grid);
+
+                // Direct neighbor
+                if (distances[1] !== undefined) {
+                    let target = distances[1][0];
+                    if(distances[1][1] !== undefined && sideStep) {
+                        target = distances[1][1];
+                    }
+                    let limit;
+                    if(sideStep) {
+                        limit = 1;
+                    }
+                    worker.direction = this.GetDirection(worker.pos, target);
+                    let move = this.MoveUntilStop(worker, grid, limit);
+                    workRemaining = workRemaining - move.count
+                }
+                if(sideStep) {
+                    sideStep = false;
+                } else {
+                    sideStep = true;
+                }
             }
-            if(this.hasDecimal(rounds)) {
-                // We can't complete this run in one go
-                rounds = Math.floor(rounds) + 1
-            }
-            //for (let round = 0; round < rounds; round++) {
-            let safeZone = 0;
-
-            //if(round === 0) {
-            safeZone = 2; // Make the drone dig out the 2 first rows first, so other drones can get to their spot.
-            //  }
-
-
-
-            //if(safeZone !== 0) {
-            //this.UpDown(worker, startSpot, distanceX, distanceZ, orientation, safeZone);
-            //this.UpDown(worker, startSpot, distanceX, distanceZ, "x", safeZone);
-            //}
-            //  this.ZigZag(worker, startSpot, distanceX, distanceZ, orientation, 10);
-            //}
-
-            //TODO: Y axis.
-            //
-
-            if(orientation == "x") {
-                this.ZigZag2(worker, 1, distanceX, false);
-                this.ZigZag2(worker, distanceX , distanceZ, true, 2);
-            } else {
-                this.ZigZag2(worker, 1, distanceZ, true, 0);
-                this.ZigZag2(worker, distanceZ, distanceX, false, 2);
-            }
-
-
-            this.ctx.fillStyle = 'green';
-
         }
+    }
+
+    MoveUntilStop(worker, grid, limit = 100000000) {
+        let s_Pos = worker.pos;
+        let moveCount = 0;
+        let s_Index = 0;
+        while (this.Forward(worker, grid) !== false && s_Index < limit) {
+            s_Index++;
+            grid[worker.pos.x][worker.pos.y][worker.pos.z] = 0;
+            this.DrawRect(worker.pos.x, worker.pos.z); // Draw current pos
+            moveCount++;
+        }
+        return {count: moveCount, pos: s_Pos}
+
+    }
+
+    Forward(worker, grid) {
+        let s_ExpectedPos = this.Move( {x: worker.pos.x, y: worker.pos.y, z: worker.pos.z}, worker.direction);
+        if(s_ExpectedPos.x > worker.max.x || s_ExpectedPos.y > worker.max.y || s_ExpectedPos.z > worker.max.z) {
+            return false
+        } else if(s_ExpectedPos.x < worker.min.x || s_ExpectedPos.y < worker.min.y || s_ExpectedPos.z < worker.min.z) {
+            return false
+        } else if(grid[s_ExpectedPos.x][s_ExpectedPos.y][s_ExpectedPos.z] === 0) {
+            return false
+        } else {
+            worker.pos = s_ExpectedPos
+        }
+    }
+
+    Move(pos, direction) {
+        if(direction === "north") {
+            pos.z--
+        }
+        if(direction === "south") {
+            pos.z++
+        }
+        if(direction === "east") {
+            pos.x++
+        }
+        if(direction === "west") {
+            pos.x--
+        }
+        return pos
+    }
+    OppositeDir(dir) {
+        if(dir === "south") {
+            return "north"
+        }
+        if(dir === "north") {
+            return "south"
+        }
+        if(dir === "west") {
+            return "east"
+        }
+        if(dir === "east") {
+            return "west"
+        }
+    }
+    GetDirection(currentPos, pos) {
+        if(pos.z < currentPos.z) {
+            return "north"
+        }
+        if(pos.z > currentPos.z) {
+            return "south"
+        }
+        if(pos.x > currentPos.x) {
+            return "east"
+        }
+        if(pos.x < currentPos.x) {
+            return "west"
+        }
+
+
+    }
+
+    GenerateGrid(min, max) {
+        let grid = [];
+
+        for(let x = min.x; x <= max.x; x++) {
+            if(grid[x] == undefined) {
+                grid[x] = [];
+            }
+            for (let y = min.y; y <= max.y; y++) {
+                if(grid[x][y] == undefined) {
+                    grid[x][y] = [];
+                }
+                for (let z = min.z; z <= max.z; z++) {
+                    grid[x][y][z] = 1
+                }
+            }
+        }
+        return grid;
+    }
+
+    GetWorkAmount(p_Min, p_Max) {
+        let distance = Math.abs(p_Max.x - p_Min.x) + 1
+        distance = distance * Math.abs(p_Max.z - p_Min.z);
+        return distance
+    }
+    GetDistance(a,b) {
+        return Math.abs(a - b);
+    }
+    GetDistances(pos, grid) {
+        let distances = [];
+        Object.keys(grid).forEach(function(x) {
+            Object.keys(grid[x]).forEach(function(y) {
+                Object.keys(grid[x][y]).forEach(function(z) {
+                    if (x == pos.x && y == pos.y && z == pos.z) {
+                    } else {
+                        if(grid[x][y][z] == 1) {
+                            let distance = 0;
+                            distance += Math.abs(pos.x - x);
+                            //distance += Math.abs(pos.y - y);
+                            distance += Math.abs(pos.z - z);
+                            if(distances[distance] === undefined) {
+                                distances[distance] = []
+                            }
+                            distances[distance].push({x: x, y:y, z:z})
+                        }
+
+                    }
+                });
+            });
+        });
+        return distances
     }
 
     ZigZag2(worker, distanceX,distanceZ, flip, push = 0) {

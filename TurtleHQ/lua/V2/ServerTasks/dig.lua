@@ -27,6 +27,23 @@ function round(x)
 	return x-0.5
 end
 
+function GetMinMax(p_Min, p_Max)
+	local s_Min = p_Min
+	local s_Max = p_Max
+	if(p_Min.x > p_Max.x) then
+		s_Min.x = p_Max.x;
+		s_Max.x = p_Min.x;
+	end
+	if(p_Min.y > p_Max.y) then
+		s_Min.y = p_Max.y;
+		s_Max.y = p_Min.y;
+	end
+	if(p_Min.z > p_Max.z) then
+		s_Min.z = p_Max.z;
+		s_Max.z = p_Min.z;
+	end
+end
+
 local function ZigZag(worker, distanceA, distanceB, flip, push)
 	local x = 0
 	local z = push
@@ -110,14 +127,13 @@ local function GeneratePath(p_Workers, p_Orientation)
 end
 
 function PrepareTask(p_Params)
-	local s_Min = p_Params.start
-	local s_Max = p_Params.stop
+	local s_Min, s_Max = GetMinMax(p_Params.start, p_Params.stop)
 
 	local s_Orientation = GetOrientation(s_Min, s_Max)
 	local s_Dist = getDist(s_Min, s_Max)
 
 	--TODO: Calculate optimal number of workers
-	local s_WorkerCount = 2
+	local s_WorkerCount = 1
 
 	if(s_Orientation == "x" and s_Dist.x < s_WorkerCount) then
 		s_WorkerCount = s_Dist.x
@@ -165,6 +181,8 @@ local params = {
 	start = start,
 	stop = stop
 }
+
+
 local file = fs.open("out","w")
 file.write(textutils.serialize(PrepareTask(params)))
 file.close()
