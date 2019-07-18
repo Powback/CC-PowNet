@@ -5,6 +5,7 @@ Turtles will be referenced to as drones when they are using PowNet.
 
 
 ## Features:
+- GUI for all modules w/ information about the state of said module.
 - Networked GPS and pathfinding using A*
 - Docking-station w/ configurable scale & automatic slot assignment
 - Automatic drone & module updating from the MainFrame
