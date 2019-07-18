@@ -19,6 +19,7 @@ Turtles will be referenced to as drones when they are using PowNet.
 - Wizard for advanced tasks (configurable based on task)
 - Task repetition and scheduling based on time, resource status or events.
 - Automatic resource storage & management
+- Drone task assignments based on distance to task to save fuel & transport time.
 
 ### Tasks:
 - Explore
