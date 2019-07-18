@@ -3,6 +3,8 @@ PowNet is a ComputerCraft Turtle management & task system.
 
 Turtles will be referenced to as drones when they are using PowNet.
 
+## Disclaimer
+This project is only intended for my personal use. No support will be given.
 
 ## Features:
 - GUI for all modules w/ information about the state of said module.
@@ -44,6 +46,8 @@ Turtles will be referenced to as drones when they are using PowNet.
     * The drone will craft the specified item based on the current resource status. 
 - Storage
     * The drone will create storage for the different materials needed to complete tasks.
+- Clicker
+    * Will simply click a button or lever when promted. Can be used to turn on/off machines to save resources or power. 
     
 ### Planned:
 - Automatic resuce missions for drones that lose connection.
