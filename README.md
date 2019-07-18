@@ -1,7 +1,5 @@
 # PowNet
-ComputerCraft PowNet
-
-PowNet is a ComputerCraft Turtle management system.
+PowNet is a ComputerCraft Turtle management & task system.
 
 Turtles will be referenced to as drones when they are using PowNet.
 
