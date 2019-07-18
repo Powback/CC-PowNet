@@ -3,6 +3,11 @@ PowNet is a ComputerCraft Turtle management & task system.
 
 Turtles will be referenced to as drones when they are using PowNet.
 
+## Description 
+PowNet uses multiple servers/modules that communicate with eachother in order to efficiently automate large parts of your base. 
+Drones are doing as little logic as possible in order to centralize and conserve processing. The servers will give the drone a spesific set of instructions. If the drone fails to accomplish said instructions, it will report back why it failed, and the server will provide new instructions that takes the failure into account. 
+
+
 ## Disclaimer
 This project is only intended for my personal use. No support will be given.
 
