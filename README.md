@@ -47,6 +47,8 @@ Turtles will be referenced to as drones when they are using PowNet.
     
 ### Planned:
 - Automatic resuce missions for drones that lose connection.
+   * A scout will visit the last known location of the drone, search the area, find the missing drone and create a new task to recover said drone.
 - GUI for structure/shape drawing 
+   * Draw the foundation of your structure and have the turtles build it.
 - Dynamic GPS station building based on travel paths, working area and coverage
 - Dynamic chunk-loading based on travel paths and working areas.
